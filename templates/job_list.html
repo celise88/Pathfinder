@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', path='/styles.css') }}">
+</head>
+<body>
+    <header class="navbar">
+        <div class="navbar__brand">
+            <img src="{{ url_for('static', path='/PF.png') }}" class="navbar__logo" alt="Pathfinder logo" />
+            <a href="{{ url_for('render_job_list') }}" class="navbar__logo">Pathfinder</a>
+        </div>
+        <ul class="navbar__navigation">
+            <li class="navbar__navigation-item"><a href="{{ url_for('render_job_neighborhoods') }}" class="navbar__link">Explore Job Neighborhoods</a></li>
+            <li class="navbar__navigation-item"><a href="{{ url_for('render_matches') }}" class="navbar__link">Find My Match</a></li>
+        </ul>
+    </header>
+    <main class="main">
+        <h1 class="pagetitle">Job Information Center</h1>
+        <h2 class="pagesubtitle">Welcome to Pathfinder! Select a job from the dropdown menu below to begin your journey!</h2>
+        <section>
+            <form class="form" method="POST" enctype="application/x-www-form-urlencoded">
+                <p class="form__input">
+                    <label for="jobtitle" class="form__label">Select a job title:</label>
+                    <select name="jobtitle" class="form__dropdown" id="jobtitle">
+                        {% for job in joblist %}
+                        <option value="{{ job }}">{{ job }}</option>
+                        {% endfor %}
+                    </select>
+                </p>
+                <button type="submit" class="form__submit">Submit</button>
+            </form>
+        </section>
+        <section>
+            <h1 class="sectiontitle">{{ jobtitle }}</h1>
+            <p class="sectiontext">{{ jobdescription }}</p>
+        </section>
+        <h1 class="pagesubtitle">About the Job</h1>
+        <section>
+            <h1 class="sectiontitle">Work Tasks:</h1>
+            <ui class="sectionlist"></ui>
+                {% for task in tasks %}
+                <li class="sectionlist__item">{{ task }}</li>
+                {% endfor %}
+            </ui>
+        </section>
+        <section>
+            <h1 class="sectiontitle">Other Work Activities:</h1>
+            <p class="sectiontext">{{ activities or "This section is under construction." }}</p>
+        </section>
+        <section>
+            <h1 class="sectiontitle">Work Conditions:</h1>
+            <p class="sectiontext">{{ conditions or "This section is under construction." }}</p>
+        </section>
+        <section>
+            <h1 class="sectiontitle">Compensation:</h1>
+            <p class="sectiontext">{{ compensation or "This section is under construction." }}</p>
+        </section>
+        <h1 class="pagesubtitle">About the Qualified Candidate</h1>
+        <section>
+            <h1 class="sectiontitle">Has Degree(s) &/or License(s)/Certification(s) in:</h1>
+            <p class="sectiontext">{{ preparation or "This section is under construction." }}</p>
+        </section>
+        <section>
+            <h1 class="sectiontitle">Knows About:</h1>
+            <p class="sectiontext">{{ knowledge or "This section is under construction." }}</p>
+        </section>
+        <section>
+            <h1 class="sectiontitle">Is Skilled at:</h1>
+            <p class="sectiontext">{{ skills or "This section is under construction." }}</p>
+        </section>
+        <section>
+            <h1 class="sectiontitle">Is Able to:</h1>
+            <p class="sectiontext">{{ abilities or "This section is under construction." }}</p>
+        </section>
+        <section>
+            <h1 class="sectiontitle">Is Interested in:</h1>
+            <p class="sectiontext">{{ interests or "This section is under construction." }}</p>
+        </section>
+    </main>
+    <footer class="footer">
+        <ul class="footer__text">
+            <li class="footer__text-item">© 2023 Pathfinder</li>
+            <li class="footer__text-item">Information on this page is courtesy of <a class="footer__text-link" href="https://www.onetonline.org">onetonline.org</li>
+        </ul>
+    </footer>
+</body>
+</html>

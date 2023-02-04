@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+    <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+    <header class="navbar">
+        <div class="navbar__brand">
+            <img src="/static/PF.png" class="navbar__logo" alt="Pathfinder logo" />
+            <a href="{{ url_for('pages.render_job_list') }}" class="navbar__logo">Pathfinder</a>
+        </div>
+        <ul class="navbar__navigation">
+            <li class="navbar__navigation-item"><a href="{{ url_for('pages.render_job_neighborhoods') }}" class="navbar__link">Explore Job Neighborhoods</a></li>
+            <li class="navbar__navigation-item"><a href="{{ url_for('pages.render_matches') }}" class="navbar__link">Find My Match</a></li>
+        </ul>
+    </header>
+    <main class="main">
+        <h1 class="pagetitle">Find my Perfect Match!</h1>
+        <h2 class="pagesubtitle">We'll help you find the perfect job for you! Upload your resume, CV, or cover letter to get started!</h2>
+        <form action = "{{ url_for('pages.render_matches') }}" class="upload" method="post" enctype="multipart/form-data">
+            <input type="file" name="resume" class="upload__file" accept=".doc,.docx,.xml,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document">
+            <button type="submit" class="form__submit">Submit</button>
+            <p class="alert">Note: We will not store or use your personal information for anything other than the stated purpose.</p>
+        </form>
+        <section class="output">
+            {% if resume %}
+            <article class="output__section">
+                <h2 class="output__subtitle">Extracted Skills</h3>
+                <ul>
+                {% for word in resume.lower().replace("-"," ").replace(")","").replace("(","").replace(":","").replace(",","").replace("/"," ").split(" ") %}
+                    {% if skills.get(word) == "Skill" %}
+                        <span class="output__list-coloreditem">{{ word }}</span>
+                    {% else %}
+                        <span class="output__list-item">{{ word }}</span>
+                    {% endif %}
+                {% endfor %}
+            </ul>
+            </article>
+            <article class="output__section">
+                <h2 class="output__subtitle">Job Matches</h3>
+                <table>
+                    <thead class="output__list">
+                        <tr>
+                            <th class="output__list-coloreditem">Job Title</th>
+                            <th class="output__list-coloreditem" scope="col">Match Score</th>
+                        </tr>
+                    </thead>
+                    <tbody class="output__list">
+                        {% for n in range(1,11) %}
+                            <tr>
+                                <th class="output__list-item" scope="row">{{ simResults.loc[n, 'JobTitle'] }}</th>
+                                <td class="output__list-item">{{ simResults.loc[n, 'Similarity'] }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </article>
+            {% endif %}
+        </section>
+    </main>
+    <footer class="footer">
+        <ul class="footer__text">
+            <li class="footer__text-item">© 2023 Pathfinder</li>
+        </ul>
+    </footer>
+</body>
+</html>
