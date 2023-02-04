@@ -4,8 +4,6 @@
 ## Purpose: 
 #### This is a web application designed to allow job-seekers to learn more about various occupations and explore their future career path. See below for details and page descriptions. If you like the app, please star and/or fork and check back frequently for future releases. 
 
-Note: This is an in-progress FastAPI version of the "ONET-Application" Flask app in my repo.
-
 ## To Access the App:
 https://pathfinder-rhe6.onrender.com
 
