@@ -15,7 +15,6 @@ templates = Jinja2Templates(directory="templates/")
 
 onet = pd.read_csv('static/ONET_JobTitles.csv')
 coheredat = pd.read_csv('static/cohere_tSNE_dat.csv')
-simdat = pd.read_csv('static/cohere_embeddings.csv')
 
 ### job information center ###
 # get
