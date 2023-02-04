@@ -7,7 +7,9 @@
 Note: This is an in-progress FastAPI version of the "ONET-Application" Flask app in my repo.
 
 ## To Access the App:
-https://huggingface.co/spaces/celise88/Pathfinder
+```
+https://pathfinder-rhe6.onrender.com
+```
 
 ## To Clone the App and Run it Locally:
 #### Note:
