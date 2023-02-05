@@ -5,24 +5,24 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard</title>
-    <link rel="stylesheet" href="/static/styles.css">
+    <link rel="stylesheet" href="{{ url_for('static', path='/styles.css') }}">
 </head>
 <body>
     <header class="navbar">
         <div class="navbar__brand">
-            <img src="/static/PF.png" class="navbar__logo" alt="Pathfinder logo" />
-            <a href="{{ url_for('pages.render_job_list') }}" class="navbar__logo">Pathfinder</a>
+            <img src="{{ url_for('static', path='/PF.png') }}" class="navbar__logo" alt="Pathfinder logo" />
+            <a href="{{ url_for('render_job_list') }}" class="navbar__logo">Pathfinder</a>
         </div>
         <ul class="navbar__navigation">
-            <li class="navbar__navigation-item"><a href="{{ url_for('pages.render_job_neighborhoods') }}" class="navbar__link">Explore Job Neighborhoods</a></li>
-            <li class="navbar__navigation-item"><a href="{{ url_for('pages.render_matches') }}" class="navbar__link">Find My Match</a></li>
+            <li class="navbar__navigation-item"><a href="{{ url_for('render_job_neighborhoods') }}" class="navbar__link">Explore Job Neighborhoods</a></li>
+            <li class="navbar__navigation-item"><a href="{{ url_for('match_page') }}" class="navbar__link">Find My Match</a></li>
         </ul>
     </header>
     <main class="main">
         <h1 class="pagetitle">Find my Perfect Match!</h1>
         <h2 class="pagesubtitle">We'll help you find the perfect job for you! Upload your resume, CV, or cover letter to get started!</h2>
-        <form action = "{{ url_for('pages.render_matches') }}" class="upload" method="post" enctype="multipart/form-data">
-            <input type="file" name="resume" class="upload__file" accept=".doc,.docx,.xml,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document">
+        <form action = "find-my-match" class="upload" method="POST" enctype="multipart/form-data">
+            <input type="file" name="resume" id="resume" class="upload__file">
             <button type="submit" class="form__submit">Submit</button>
             <p class="alert">Note: We will not store or use your personal information for anything other than the stated purpose.</p>
         </form>

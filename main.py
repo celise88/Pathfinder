@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Request, Form, File, Query, Depends
+from fastapi import FastAPI, Request, Form, File, UploadFile
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import HTMLResponse
@@ -6,15 +6,27 @@ import pandas as pd
 import requests
 from bs4 import BeautifulSoup
 from cleantext import clean
-from typing import List, Optional
-import json
+from docx import Document
+from docx2txt import process
+import os
+import cohere
+import string
+import numpy as np
+from numpy.linalg import norm
+from nltk.tokenize import SpaceTokenizer
+import nltk
+from transformers import pipeline
+from dotenv import load_dotenv
+load_dotenv()
 
 app = FastAPI()
 app.mount("/static", StaticFiles(directory='static'), name="static")
 templates = Jinja2Templates(directory="templates/")
 
 onet = pd.read_csv('static/ONET_JobTitles.csv')
-coheredat = pd.read_csv('static/cohere_tSNE_dat.csv')
+simdat = pd.read_csv('static/cohere_embeddings.csv')
+
+classifier = pipeline('text-classification', model='celise88/distilbert-base-uncased-finetuned-binary-classifier', tokenizer='celise88/distilbert-base-uncased-finetuned-binary-classifier')
 
 ### job information center ###
 # get
@@ -65,11 +77,78 @@ async def render_job_neighborhoods(request: Request):
 
 ### find my match ###
 # get
-@app.get("find_my_match.html", response_class=HTMLResponse)
-async def render_matches(request: Request):
-    pass
+@app.get("/find-my-match", response_class=HTMLResponse)
+async def match_page(request: Request):
+    return templates.TemplateResponse('find_my_match.html', context={'request': request})
 
 # post
-@app.post("find_my_match.html", response_class=HTMLResponse)
-async def render_matches(request: Request, resume: str = File(...)):
-    pass
+@app.post('/find-my-match', response_class=HTMLResponse)
+def get_resume(request: Request, resume: UploadFile = File(...)):
+    path = f"static/{resume.filename}"
+    with open(path, 'wb') as buffer:
+        buffer.write(resume.file.read())
+    file = Document(path)
+    print(file)
+    text = []
+    for para in file.paragraphs:
+        text.append(para.text)
+    resume = "\n".join(text)
+
+    def clean_my_text(text):
+        clean_text = ' '.join(text.splitlines())
+        clean_text = clean_text.replace('-', " ").replace("/"," ")
+        clean_text = clean(clean_text.translate(str.maketrans('', '', string.punctuation)))
+        return clean_text
+
+    def coSkillEmbed(text):
+        co = cohere.Client(os.getenv("COHERE_TOKEN"))
+        response = co.embed(
+            model='large',
+            texts=[text])
+        return response.embeddings
+    
+    def cosine(A, B):
+        return np.dot(A,B)/(norm(A)*norm(B))
+
+    embeds = coSkillEmbed(resume)
+    simResults = []
+
+    for i in range(len(simdat)):
+        simResults.append(cosine(np.array(embeds), np.array(simdat.iloc[i,1:])))
+    simResults = pd.DataFrame(simResults)
+    simResults['JobTitle'] = simdat['Title']
+
+    simResults = simResults.iloc[:,[1,0]]
+    simResults.columns = ['JobTitle', 'Similarity']
+    simResults = simResults.sort_values(by = "Similarity", ascending = False)
+    simResults = simResults.iloc[:13,:]
+    simResults = simResults.iloc[1:,:]
+    simResults.reset_index(drop=True, inplace=True)
+    for x in range(len(simResults)):
+        simResults.iloc[x,1] = "{:0.2f}".format(simResults.iloc[x,1])
+        
+    # EXTRACT SKILLS FROM RESUME 
+    def skillNER(resume):
+        resume = clean_my_text(resume)
+        stops = set(nltk.corpus.stopwords.words('english'))
+        stops = stops.union({'eg', 'ie', 'etc', 'experience', 'experiences', 'experienced', 'experiencing', 'knowledge', 
+        'ability', 'abilities', 'skill', 'skills', 'skilled', 'including', 'includes', 'included', 'include'
+        'education', 'follow', 'following', 'follows', 'followed', 'make', 'made', 'makes', 'making', 'maker',
+        'available', 'large', 'larger', 'largescale', 'client', 'clients', 'responsible', 'x', 'many', 'team', 'teams'})
+        resume = [word for word in SpaceTokenizer().tokenize(resume) if word not in stops]
+        resume = [word for word in resume if ")" not in word]
+        resume = [word for word in resume if "(" not in word]
+        
+        labels = []
+        for i in range(len(resume)):
+            classification = classifier(resume[i])[0]['label']
+            if classification == 'LABEL_1':
+                labels.append("Skill")
+            else:
+                labels.append("Not Skill")
+            labels_dict = dict(zip(resume, labels))
+        return labels_dict
+    
+    skills=skillNER(resume)
+
+    return templates.TemplateResponse('find_my_match.html', context={'request': request, 'resume': resume, 'skills': skills, 'simResults': simResults})
