@@ -7,7 +7,6 @@ import requests
 from bs4 import BeautifulSoup
 from cleantext import clean
 from docx import Document
-from docx2txt import process
 import os
 import cohere
 import string
