@@ -9,6 +9,7 @@ from cleantext import clean
 from docx import Document
 import os
 import cohere
+from cohere import CohereError
 import string
 import numpy as np
 from numpy.linalg import norm
@@ -103,11 +104,14 @@ def get_resume(request: Request, resume: UploadFile = File(...)):
         return clean_text
 
     def coSkillEmbed(text):
-        co = cohere.Client(os.getenv("COHERE_TOKEN"))
-        response = co.embed(
-            model='large',
-            texts=[text])
-        return response.embeddings
+        try:
+            co = cohere.Client(os.getenv("COHERE_TOKEN"))
+            response = co.embed(
+                model='large',
+                texts=[text])
+            return response.embeddings
+        except CohereError as e:
+            return e
     
     def cosine(A, B):
         return np.dot(A,B)/(norm(A)*norm(B))
