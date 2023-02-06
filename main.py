@@ -76,7 +76,7 @@ async def match_page(request: Request):
     return templates.TemplateResponse('find_my_match.html', context={'request': request})
 
 # post
-@app.post('/find-my-match', response_class=HTMLResponse)
+@app.post('/find-my-match/', response_class=HTMLResponse)
 def get_resume(request: Request, resume: UploadFile = File(...)):
 
     classifier = pipeline('text-classification', model = model, tokenizer = tokenizer)
