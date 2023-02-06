@@ -7,16 +7,10 @@ import requests
 from bs4 import BeautifulSoup
 from cleantext import clean
 from docx import Document
-import os
-import cohere
-import string
 import numpy as np
-from numpy.linalg import norm
-from nltk.tokenize import SpaceTokenizer
-import nltk
 from transformers import pipeline, AutoTokenizer, AutoModelForSequenceClassification
-from dotenv import load_dotenv
-load_dotenv()
+import utils
+from utils import coSkillEmbed, cosine, clean_my_text
 
 app = FastAPI()
 app.mount("/static", StaticFiles(directory='static'), name="static")
@@ -27,7 +21,6 @@ simdat = pd.read_csv('static/cohere_embeddings.csv')
 
 model = AutoModelForSequenceClassification.from_pretrained('static/model_shards', low_cpu_mem_usage=True)
 tokenizer = AutoTokenizer.from_pretrained('static/tokenizer_shards', low_cpu_mem_usage=True)
-classifier = pipeline('text-classification', model = model, tokenizer = tokenizer)
 
 ### job information center ###
 # get
@@ -85,6 +78,9 @@ async def match_page(request: Request):
 # post
 @app.post('/find-my-match', response_class=HTMLResponse)
 def get_resume(request: Request, resume: UploadFile = File(...)):
+
+    classifier = pipeline('text-classification', model = model, tokenizer = tokenizer)
+
     path = f"static/{resume.filename}"
     with open(path, 'wb') as buffer:
         buffer.write(resume.file.read())
@@ -93,22 +89,6 @@ def get_resume(request: Request, resume: UploadFile = File(...)):
     for para in file.paragraphs:
         text.append(para.text)
     resume = "\n".join(text)
-
-    def clean_my_text(text):
-        clean_text = ' '.join(text.splitlines())
-        clean_text = clean_text.replace('-', " ").replace("/"," ")
-        clean_text = clean(clean_text.translate(str.maketrans('', '', string.punctuation)))
-        return clean_text
-
-    def coSkillEmbed(text):
-        co = cohere.Client(os.getenv("COHERE_TOKEN"))
-        response = co.embed(
-            model='large',
-            texts=[text])
-        return response.embeddings
-    
-    def cosine(A, B):
-        return np.dot(A,B)/(norm(A)*norm(B))
 
     embeds = coSkillEmbed(resume)
     simResults = []
@@ -126,29 +106,15 @@ def get_resume(request: Request, resume: UploadFile = File(...)):
     simResults.reset_index(drop=True, inplace=True)
     for x in range(len(simResults)):
         simResults.iloc[x,1] = "{:0.2f}".format(simResults.iloc[x,1])
-        
-    # EXTRACT SKILLS FROM RESUME 
-    def skillNER(resume):
-        resume = clean_my_text(resume)
-        stops = set(nltk.corpus.stopwords.words('english'))
-        stops = stops.union({'eg', 'ie', 'etc', 'experience', 'experiences', 'experienced', 'experiencing', 'knowledge', 
-        'ability', 'abilities', 'skill', 'skills', 'skilled', 'including', 'includes', 'included', 'include'
-        'education', 'follow', 'following', 'follows', 'followed', 'make', 'made', 'makes', 'making', 'maker',
-        'available', 'large', 'larger', 'largescale', 'client', 'clients', 'responsible', 'x', 'many', 'team', 'teams'})
-        resume = [word for word in SpaceTokenizer().tokenize(resume) if word not in stops]
-        resume = [word for word in resume if ")" not in word]
-        resume = [word for word in resume if "(" not in word]
-        
-        labels = []
-        for i in range(len(resume)):
-            classification = classifier(resume[i])[0]['label']
-            if classification == 'LABEL_1':
-                labels.append("Skill")
-            else:
-                labels.append("Not Skill")
-            labels_dict = dict(zip(resume, labels))
-        return labels_dict
     
-    skills=skillNER(resume)
+    cleantext = clean_my_text(resume)
+    labels = []
+    for i in range(len(cleantext)):
+        classification = classifier(cleantext[i])[0]['label']
+        if classification == 'LABEL_1':
+            labels.append("Skill")
+        else:
+            labels.append("Not Skill")
+        skills = dict(zip(cleantext, labels))
 
     return templates.TemplateResponse('find_my_match.html', context={'request': request, 'resume': resume, 'skills': skills, 'simResults': simResults})
