@@ -16,8 +16,7 @@ pinned: true
 #### This is a FastAPI web application designed to allow job-seekers to learn more about various occupations and explore their future career path. See below for details and page descriptions. If you like the app, please star and/or fork and check back frequently for future releases. 
 
 ## To Access the App:
-https://pathfinder-rhe6.onrender.com
-
+https://huggingface.co/spaces/celise88/Pathfinder
 
 ## To Clone the App and Run it Locally:
 #### Note:
