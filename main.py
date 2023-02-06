@@ -71,7 +71,7 @@ async def render_job_neighborhoods(request: Request):
 
 ### find my match ###
 # get
-@app.get("/find-my-match", response_class=HTMLResponse)
+@app.get("/find-my-match/", response_class=HTMLResponse)
 async def match_page(request: Request):
     return templates.TemplateResponse('find_my_match.html', context={'request': request})
 
