@@ -14,6 +14,7 @@ import numpy as np
 from numpy.linalg import norm
 from nltk.tokenize import SpaceTokenizer
 import nltk
+import plotly.express as px
 from transformers import pipeline, AutoTokenizer, AutoModelForSequenceClassification
 from dotenv import load_dotenv
 load_dotenv()
@@ -74,19 +75,22 @@ def render_job_info(request: Request, jobtitle: str = Form(enum=[x for x in onet
 
 ### job neighborhoods ###
 @app.get("/explore-job-neighborhoods/", response_class=HTMLResponse)
-async def render_job_neighborhoods(request: Request):
-    def format_title(logo, title, subtitle, title_font_size = 28, subtitle_font_size=14):
-        logo = f'<a href="/" target="_self">{logo}</a>'
-        subtitle = f'<span style="font-size: {subtitle_font_size}px;">{subtitle}</span>'
-        title = f'<span style="font-size: {title_font_size}px;">{title}</span>'
-        return f'{logo}{title}<br>{subtitle}'
-    
-    fig = px.scatter(coheredat, x = 'longitude', y = 'latitude', color = 'Category', hover_data = ['Category', 'Title'], 
-        title=format_title("Pathfinder", "     Job Neighborhoods: Explore the Map!", "(Generated using Co-here AI's LLM & ONET's Task Statements)"))
-    fig['layout'].update(height=1000, width=1500, font=dict(family='Courier New, monospace', color='black'))
-    fig.write_html('templates/job_neighborhoods.html')
+def render_job_neighborhoods(request: Request):
+    if 'job_neighborhoods.html' in os.listdir('templates'):
+        return templates.TemplateResponse('job_neighborhoods.html', context={'request': request})
+    else:
+        def format_title(logo, title, subtitle, title_font_size = 28, subtitle_font_size=14):
+            logo = f'<a href="/" target="_self">{logo}</a>'
+            subtitle = f'<span style="font-size: {subtitle_font_size}px;">{subtitle}</span>'
+            title = f'<span style="font-size: {title_font_size}px;">{title}</span>'
+            return f'{logo}{title}<br>{subtitle}'
+        
+        fig = px.scatter(coheredat, x = 'longitude', y = 'latitude', color = 'Category', hover_data = ['Category', 'Title'], 
+            title=format_title("Pathfinder", "     Job Neighborhoods: Explore the Map!", "(Generated using Co-here AI's LLM & ONET's Task Statements)"))
+        fig['layout'].update(height=1000, width=1500, font=dict(family='Courier New, monospace', color='black'))
+        fig.write_html('templates/job_neighborhoods.html')
 
-    return templates.TemplateResponse('job_neighborhoods.html', context={'request': request})
+        return templates.TemplateResponse('job_neighborhoods.html', context={'request': request})
 
 ### find my match ###
 # get
@@ -122,6 +126,7 @@ def get_resume(request: Request, resume: UploadFile = File(...)):
     def cosine(A, B):
         return np.dot(A,B)/(norm(A)*norm(B))
 
+    # GET RESUME EMBEDDINGS AND JOB SIMILARITY SCORES
     embeds = coSkillEmbed(resume)
     simResults = []
 
@@ -138,7 +143,7 @@ def get_resume(request: Request, resume: UploadFile = File(...)):
     simResults.reset_index(drop=True, inplace=True)
     for x in range(len(simResults)):
         simResults.iloc[x,1] = "{:0.2f}".format(simResults.iloc[x,1])
-    
+        
     # EXTRACT SKILLS FROM RESUME 
     def skillNER(resume):
         resume = clean_my_text(resume)
@@ -150,17 +155,15 @@ def get_resume(request: Request, resume: UploadFile = File(...)):
         resume = [word for word in SpaceTokenizer().tokenize(resume) if word not in stops]
         resume = [word for word in resume if ")" not in word]
         resume = [word for word in resume if "(" not in word]
-        
+            
         labels = []
         for i in range(len(resume)):
             classification = classifier(resume[i])[0]['label']
-        if classification == 'LABEL_1':
-            labels.append("Skill")
-        else:
-            labels.append("Not Skill")
+            if classification == 'LABEL_1':
+                labels.append("Skill")
+            else:
+                labels.append("Not Skill")
             labels_dict = dict(zip(resume, labels))
         return labels_dict
-    
-    skills=skillNER(resume)
-
+    skills = skillNER(resume)
     return templates.TemplateResponse('find_my_match.html', context={'request': request, 'resume': resume, 'skills': skills, 'simResults': simResults})
