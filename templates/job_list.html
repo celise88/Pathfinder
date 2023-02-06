@@ -5,17 +5,17 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard</title>
-    <link rel="stylesheet" href="{{ url_for('static', path='/styles.css') }}">
+    <link rel="stylesheet" href="./static/styles.css">
 </head>
 <body>
     <header class="navbar">
         <div class="navbar__brand">
-            <img src="{{ url_for('static', path='/PF.png') }}" class="navbar__logo" alt="Pathfinder logo" />
-            <a href="{{ url_for('render_job_list') }}" class="navbar__logo">Pathfinder</a>
+            <img src="./static/PF.png" class="navbar__logo" alt="Pathfinder logo" />
+            <a href="/" class="navbar__logo">Pathfinder</a>
         </div>
         <ul class="navbar__navigation">
-            <li class="navbar__navigation-item"><a href="{{ url_for('render_job_neighborhoods') }}" class="navbar__link">Explore Job Neighborhoods</a></li>
-            <li class="navbar__navigation-item"><a href="{{ url_for('match_page') }}" class="navbar__link">Find My Match</a></li>
+            <li class="navbar__navigation-item"><a href="/explore-job-neighborhoods/" class="navbar__link">Explore Job Neighborhoods</a></li>
+            <li class="navbar__navigation-item"><a href="/find-my-match/" class="navbar__link">Find My Match</a></li>
         </ul>
     </header>
     <main class="main">
