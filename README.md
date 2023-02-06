@@ -1,3 +1,12 @@
+---
+title: Pathfinder
+emoji: 🗺️
+colorFrom: blue
+colorTo: green
+sdk: docker
+pinned: true
+---
+
 # Pathfinder
 ![logo](./static/PF.png)   
 
