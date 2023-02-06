@@ -25,7 +25,7 @@ templates = Jinja2Templates(directory="templates/")
 onet = pd.read_csv('static/ONET_JobTitles.csv')
 simdat = pd.read_csv('static/cohere_embeddings.csv')
 
-classifier = pipeline('text-classification', model='celise88/distilbert-base-uncased-finetuned-binary-classifier', tokenizer='celise88/distilbert-base-uncased-finetuned-binary-classifier')
+classifier = pipeline('text-classification', model = 'static/model_shards', tokenizer = 'static/tokenizer_shards')
 
 ### job information center ###
 # get
@@ -87,7 +87,6 @@ def get_resume(request: Request, resume: UploadFile = File(...)):
     with open(path, 'wb') as buffer:
         buffer.write(resume.file.read())
     file = Document(path)
-    print(file)
     text = []
     for para in file.paragraphs:
         text.append(para.text)
