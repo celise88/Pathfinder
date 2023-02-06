@@ -14,7 +14,7 @@ import numpy as np
 from numpy.linalg import norm
 from nltk.tokenize import SpaceTokenizer
 import nltk
-from transformers import pipeline
+from transformers import pipeline, AutoTokenizer, AutoModelForSequenceClassification
 from dotenv import load_dotenv
 load_dotenv()
 
@@ -25,7 +25,9 @@ templates = Jinja2Templates(directory="templates/")
 onet = pd.read_csv('static/ONET_JobTitles.csv')
 simdat = pd.read_csv('static/cohere_embeddings.csv')
 
-classifier = pipeline('text-classification', model = 'static/model_shards', tokenizer = 'static/tokenizer_shards')
+model = AutoModelForSequenceClassification.from_pretrained('static/model_shards', low_cpu_mem_usage=True)
+tokenizer = AutoTokenizer.from_pretrained('static/tokenizer_shards', low_cpu_mem_usage=True)
+classifier = pipeline('text-classification', model = model, tokenizer = tokenizer)
 
 ### job information center ###
 # get
