@@ -90,12 +90,12 @@ async def render_job_neighborhoods(request: Request):
 
 ### find my match ###
 # get
-@app.get("/find-my-match", response_class=HTMLResponse)
+@app.get("/find-my-match/", response_class=HTMLResponse)
 async def match_page(request: Request):
     return templates.TemplateResponse('find_my_match.html', context={'request': request})
 
 # post
-@app.post('/find-my-match', response_class=HTMLResponse)
+@app.post('/find-my-match/', response_class=HTMLResponse)
 def get_resume(request: Request, resume: UploadFile = File(...)):
     path = f"static/{resume.filename}"
     with open(path, 'wb') as buffer:
