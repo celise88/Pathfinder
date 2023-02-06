@@ -76,21 +76,18 @@ def render_job_info(request: Request, jobtitle: str = Form(enum=[x for x in onet
 ### job neighborhoods ###
 @app.get("/explore-job-neighborhoods/", response_class=HTMLResponse)
 def render_job_neighborhoods(request: Request):
-    if 'job_neighborhoods.html' in os.listdir('templates'):
-        return templates.TemplateResponse('job_neighborhoods.html', context={'request': request})
-    else:
-        def format_title(logo, title, subtitle, title_font_size = 28, subtitle_font_size=14):
-            logo = f'<a href="/" target="_self">{logo}</a>'
-            subtitle = f'<span style="font-size: {subtitle_font_size}px;">{subtitle}</span>'
-            title = f'<span style="font-size: {title_font_size}px;">{title}</span>'
-            return f'{logo}{title}<br>{subtitle}'
+    def format_title(logo, title, subtitle, title_font_size = 28, subtitle_font_size=14):
+        logo = f'<a href="/" target="_self">{logo}</a>'
+        subtitle = f'<span style="font-size: {subtitle_font_size}px;">{subtitle}</span>'
+        title = f'<span style="font-size: {title_font_size}px;">{title}</span>'
+        return f'{logo}{title}<br>{subtitle}'
         
-        fig = px.scatter(coheredat, x = 'longitude', y = 'latitude', color = 'Category', hover_data = ['Category', 'Title'], 
-            title=format_title("Pathfinder", "     Job Neighborhoods: Explore the Map!", "(Generated using Co-here AI's LLM & ONET's Task Statements)"))
-        fig['layout'].update(height=1000, width=1500, font=dict(family='Courier New, monospace', color='black'))
-        fig.write_html('templates/job_neighborhoods.html')
+    fig = px.scatter(coheredat, x = 'longitude', y = 'latitude', color = 'Category', hover_data = ['Category', 'Title'], 
+        title=format_title("Pathfinder", "     Job Neighborhoods: Explore the Map!", "(Generated using Co-here AI's LLM & ONET's Task Statements)"))
+    fig['layout'].update(height=1000, width=1500, font=dict(family='Courier New, monospace', color='black'))
+    fig.write_html('templates/job_neighborhoods.html')
 
-        return templates.TemplateResponse('job_neighborhoods.html', context={'request': request})
+    return templates.TemplateResponse('job_neighborhoods.html', context={'request': request})
 
 ### find my match ###
 # get
