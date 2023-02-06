@@ -15,7 +15,6 @@ import numpy as np
 from numpy.linalg import norm
 from nltk.tokenize import SpaceTokenizer
 import nltk
-import plotly.express as px
 from transformers import pipeline, AutoTokenizer, AutoModelForSequenceClassification
 from dotenv import load_dotenv
 load_dotenv()
