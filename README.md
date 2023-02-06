@@ -6,7 +6,6 @@ colorTo: green
 sdk: docker
 python_version: 3.10.9
 app_port: 7860
-models: celise88/distilbert-base-uncased-finetuned-binary-classifier
 pinned: true
 ---
 
