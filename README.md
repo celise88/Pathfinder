@@ -27,7 +27,7 @@ https://huggingface.co/spaces/celise88/Pathfinder
 
 ```
 pip3 install --user virtualenv
-git clone https://github.com/celise88/ONET-Application.git
+git clone https://github.com/celise88/Pathfinder.git
 ```
 
 Once you have your API key, copy and paste it into the .env file in the ONET-Application folder. Make sure you save the file. Then proceed with the following commands in your terminal:
@@ -77,4 +77,3 @@ And navigate to http://localhost:8000/ in your browser
 * Version 1.1.1 (current version) - 2/5/2023 - Added full functionality to the "find my match" page where users can upload a resume, curriculum vitae, cover letter, etc. to have their skills extracted from the text.  Neural text embeddings are then produced for the user's resume. Using a csv file containing the text embeddings for all ONET jobs, cosine similarity is calculated to determine how similar the user's resume is to each job description (the embedded ONET task statements) - this is the user's "match score."  
     * The classification model underlying the skills extractor is a custom distilbert-base-uncased binary classification model that was finetuned using a balanced dataset comprised of the emsi (now Lightcast) open skills database and a random sample of the dbpedia database. The model achieved an f1 score of 0.967 on the validation sample (accuracy of 0.967, loss of 0.096). It can be accessed via Hugging Face: https://huggingface.co/celise88/distilbert-base-uncased-finetuned-binary-classifier.
     * Cohere's LLM is used to get the neural text embeddings. (This is why a cohere API key is needed for the new functionality to work in this release; I plan to incorporate an open-source embedding model in a future release.)
-
