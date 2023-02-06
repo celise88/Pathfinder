@@ -8,6 +8,7 @@ from bs4 import BeautifulSoup
 from cleantext import clean
 from docx import Document
 import os
+import ssl
 import cohere
 from cohere import CohereError
 import string
@@ -18,6 +19,15 @@ import nltk
 from transformers import pipeline, AutoTokenizer, AutoModelForSequenceClassification
 from dotenv import load_dotenv
 load_dotenv()
+
+try:
+    _create_unverified_https_context = ssl._create_unverified_context
+except AttributeError:
+    pass
+else:
+    ssl._create_default_https_context = _create_unverified_https_context
+if os.path.isdir('nltk_data')==False:
+    nltk.download('stopwords', quiet=True)
 
 app = FastAPI()
 app.mount("/static", StaticFiles(directory='static'), name="static")
