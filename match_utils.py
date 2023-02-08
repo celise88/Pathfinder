@@ -12,7 +12,7 @@ import numpy as np
 from numpy.linalg import norm
 import ssl
 from dotenv import load_dotenv
-import concurrent.futures
+import plotly_express as px
 
 # SSL CERTIFICATE FIX
 try:
@@ -31,6 +31,7 @@ load_dotenv()
 
 # LOAD COHERE EMBEDDINGS:
 simdat = pd.read_csv('static/cohere_embeddings.csv')
+coheredat = pd.read_csv('static/cohere_tSNE_dat.csv')
 
 # LOAD FINE-TUNED MODEL 
 # (see https://huggingface.co/celise88/distilbert-base-uncased-finetuned-binary-classifier)
@@ -39,6 +40,18 @@ tokenizer = AutoTokenizer.from_pretrained('static/tokenizer_shards', low_cpu_mem
 classifier = pipeline('text-classification', model = model, tokenizer = tokenizer)
 
 # UTILITY FUNCTIONS
+async def neighborhoods(jobtitle=None):
+    def format_title(logo, title, subtitle, title_font_size = 28, subtitle_font_size=14):
+        logo = f'<a href="/" target="_self">{logo}</a>'
+        subtitle = f'<span style="font-size: {subtitle_font_size}px;">{subtitle}</span>'
+        title = f'<span style="font-size: {title_font_size}px;">{title}</span>'
+        return f'{logo}{title}<br>{subtitle}'
+    
+    fig = px.scatter(coheredat, x = 'longitude', y = 'latitude', color = 'Category', hover_data = ['Category', 'Title'], 
+        title=format_title("Pathfinder", "     Job Neighborhoods: Explore the Map!", "(Generated using Co-here AI's LLM & ONET's Task Statements)"))
+    fig['layout'].update(height=1000, width=1500, font=dict(family='Courier New, monospace', color='black'))
+    fig.write_html('templates/job_neighborhoods.html')
+
 def get_resume(resume):
     path = f"static/{resume.filename}"
     with open(path, 'wb') as buffer:
@@ -50,7 +63,7 @@ def get_resume(resume):
     resume = "\n".join(text)
     return resume
 
-def coSkillEmbed(text):
+async def coSkillEmbed(text):
     try:
         co = cohere.Client(os.getenv("COHERE_TOKEN"))
         response = co.embed(
@@ -60,10 +73,9 @@ def coSkillEmbed(text):
     except CohereError as e:
         return e
 
-async def get_simresults(resume):
+async def sim_result_loop(embeds):
     def cosine(A, B):
         return np.dot(A,B)/(norm(A)*norm(B))
-    embeds = coSkillEmbed(resume)
     simResults = []
     for i in range(len(simdat)):
         simResults.append(cosine(np.array(embeds), np.array(simdat.iloc[i,1:])))
@@ -103,5 +115,5 @@ async def skillNER(resume):
             labels.append("Skill")
         else:
             labels.append("Not Skill")
-        labels_dict = dict(zip(resume, labels))
-    return labels_dict
+        skills = dict(zip(resume, labels))
+    return skills
