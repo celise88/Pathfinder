@@ -46,7 +46,6 @@ async def neighborhoods(jobtitle=None):
         subtitle = f'<span style="font-size: {subtitle_font_size}px;">{subtitle}</span>'
         title = f'<span style="font-size: {title_font_size}px;">{title}</span>'
         return f'{logo}{title}<br>{subtitle}'
-    
     fig = px.scatter(coheredat, x = 'longitude', y = 'latitude', color = 'Category', hover_data = ['Category', 'Title'], 
         title=format_title("Pathfinder", "     Job Neighborhoods: Explore the Map!", "(Generated using Co-here AI's LLM & ONET's Task Statements)"))
     fig['layout'].update(height=1000, width=1500, font=dict(family='Courier New, monospace', color='black'))
@@ -63,7 +62,7 @@ def get_resume(resume):
     resume = "\n".join(text)
     return resume
 
-async def coSkillEmbed(text):
+def coSkillEmbed(text):
     try:
         co = cohere.Client(os.getenv("COHERE_TOKEN"))
         response = co.embed(
@@ -73,12 +72,14 @@ async def coSkillEmbed(text):
     except CohereError as e:
         return e
 
-async def sim_result_loop(embeds):
+async def sim_result_loop(resume):
+    embeds = coSkillEmbed(resume)
     def cosine(A, B):
         return np.dot(A,B)/(norm(A)*norm(B))
+    def format_sim(sim):
+        return "{:0.2f}".format(sim)
     simResults = []
-    for i in range(len(simdat)):
-        simResults.append(cosine(np.array(embeds), np.array(simdat.iloc[i,1:])))
+    [simResults.append(cosine(np.array(embeds), np.array(simdat.iloc[i,1:]))) for i in range(len(simdat))]
     simResults = pd.DataFrame(simResults)
     simResults['JobTitle'] = simdat['Title']
     simResults = simResults.iloc[:,[1,0]]
@@ -88,7 +89,7 @@ async def sim_result_loop(embeds):
     simResults = simResults.iloc[1:,:]
     simResults.reset_index(drop=True, inplace=True)
     for x in range(len(simResults)):
-        simResults.iloc[x,1] = "{:0.2f}".format(simResults.iloc[x,1])
+        simResults.iloc[x,1] = format_sim(simResults.iloc[x,1])
     return simResults
 
 async def skillNER(resume):
@@ -97,7 +98,6 @@ async def skillNER(resume):
         clean_text = clean_text.replace('-', " ").replace("/"," ")
         clean_text = clean(clean_text.translate(str.maketrans('', '', string.punctuation)))
         return clean_text
-
     resume = clean_my_text(resume)
     stops = set(nltk.corpus.stopwords.words('english'))
     stops = stops.union({'eg', 'ie', 'etc', 'experience', 'experiences', 'experienced', 'experiencing', 'knowledge', 
@@ -107,13 +107,6 @@ async def skillNER(resume):
     resume = [word for word in SpaceTokenizer().tokenize(resume) if word not in stops]
     resume = [word for word in resume if ")" not in word]
     resume = [word for word in resume if "(" not in word]
-            
-    labels = []
-    for i in range(len(resume)):
-        classification = classifier(resume[i])[0]['label']
-        if classification == 'LABEL_1':
-            labels.append("Skill")
-        else:
-            labels.append("Not Skill")
-        skills = dict(zip(resume, labels))
+    skills = {}
+    [skills.update({word : "Skill"}) if classifier(word)[0]['label'] == 'LABEL_1' else skills.update({word: "Not Skill"}) for word in resume]
     return skills

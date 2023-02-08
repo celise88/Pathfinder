@@ -13,7 +13,8 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.responses import HTMLResponse
 import pandas as pd
 from scrape_onet import get_onet_code, get_onet_description, get_onet_tasks
-from match_utils import neighborhoods, get_resume, coSkillEmbed, sim_result_loop, skillNER
+from match_utils import neighborhoods, get_resume, skillNER, sim_result_loop
+import time
 
 # APP SETUP
 app = FastAPI()
@@ -60,8 +61,9 @@ def get_matches(request: Request):
 # POST
 @app.post('/find-my-match/', response_class=HTMLResponse)
 async def post_matches(request: Request, resume: UploadFile = File(...)):
+    t = time.time()
     resume = get_resume(resume)
-    embeds = await coSkillEmbed(resume)
-    simResults = await sim_result_loop(embeds)
     skills = await skillNER(resume)
+    simResults = await sim_result_loop(resume)
+    print(time.time() - t)
     return templates.TemplateResponse('find_my_match.html', context={'request': request, 'resume': resume, 'skills': skills, 'simResults': simResults})
