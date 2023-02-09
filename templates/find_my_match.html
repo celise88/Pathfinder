@@ -43,22 +43,36 @@
             </article>
             <article class="output__section">
                 <h2 class="output__subtitle">Job Matches</h3>
-                <table>
-                    <thead class="output__list">
-                        <tr>
-                            <th class="output__list-coloreditem">Job Title</th>
-                            <th class="output__list-coloreditem" scope="col">Match Score</th>
-                        </tr>
-                    </thead>
-                    <tbody class="output__list">
-                        {% for n in range(1,11) %}
+                <p class="alert">(Note: You can click on the links to find out more.)</p>
+                <p class="alert">Instructions: When you have decided which job title is most closely aligned with your skills and interests, choose the corresponding radio button and click "Submit."</p>
+                <form action="/find-match/" class="selection__form" method="GET">
+                    <table>
+                        <thead class="output__list">
                             <tr>
-                                <th class="output__list-item" scope="row">{{ simResults.loc[n, 'JobTitle'] }}</th>
-                                <td class="output__list-item">{{ simResults.loc[n, 'Similarity'] }}</td>
+                                <th class="output__list-coloreditem">Job Title</th>
+                                <th class="output__list-coloreditem" scope="col">Match Score</th>
                             </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody class="output__list" style="text-align: left">
+                            {% for n in range(1,11) %}
+                                <tr>
+                                    <th class="output__list-item" scope="row">
+                                        <input type="radio" id="jobselection" name="jobselection" class="jobselection" value={{ simResults.loc[n, 'JobTitle'] }} />
+                                        <a class="output__table-item" href={{ links[n] }}>{{ simResults.loc[n, 'JobTitle'] }}</a>
+                                    </th>
+                                    <td class="output__list-item" style="text-align: center">
+                                        {{ simResults.loc[n, 'Similarity'] }}
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                    <br>
+                    <br>
+                    <div class="radio__submit">
+                        <button type="submit" class="radio__submit">Submit</button>
+                    </div>
+                </form>
             </article>
             {% endif %}
         </section>

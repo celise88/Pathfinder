@@ -104,7 +104,8 @@ async def skillNER(resume):
     stops = stops.union({'eg', 'ie', 'etc', 'experience', 'experiences', 'experienced', 'experiencing', 'knowledge', 
     'ability', 'abilities', 'skill', 'skills', 'skilled', 'including', 'includes', 'included', 'include'
     'education', 'follow', 'following', 'follows', 'followed', 'make', 'made', 'makes', 'making', 'maker',
-    'available', 'large', 'larger', 'largescale', 'client', 'clients', 'responsible', 'x', 'many', 'team', 'teams'})
+    'available', 'large', 'larger', 'largescale', 'client', 'clients', 'responsible', 'x', 'many', 'team', 'teams', 
+    'concern', 'concerned', 'concerning', 'concerns', 'space', 'spaces', 'spaced'})
     resume = [word for word in SpaceTokenizer().tokenize(resume) if word not in stops]
     resume = [word for word in resume if ")" not in word]
     resume = [word for word in resume if "(" not in word]
