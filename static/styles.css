@@ -224,13 +224,19 @@ html {
     font-weight: bold;
 }
 
+.selection__form {
+    display: table-row-group;
+    vertical-align: left;
+    align-content: left;
+}
+
 .output__table-item {
     font-size: 14px;
     color: #2c2161;
-    margin-bottom: 10px;
-    margin-right: 10px;
     text-align: left;
+    align-self: flex-start;
 }
+
 .footer {
     background-color: #323f43;
     padding: 40px 0;

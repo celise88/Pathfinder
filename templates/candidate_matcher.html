@@ -30,7 +30,7 @@
         <section class="output">
             {% if jobdesc %}
             <article class="output__section">
-                <h2 class="output__subtitle">Extracted Skills</h3>
+                <h2 class="output__subtitle">Extracted Skills</h2>
                 <ul>
                 {% for word in jobdesc.lower().replace("-"," ").replace(")","").replace("(","").replace(":","").replace(",","").replace("/"," ").split(" ") %}
                     {% if skills.get(word) == "Skill" %}
@@ -42,9 +42,9 @@
             </ul>
             </article>
             <article class="output__section">
-                <h2 class="output__subtitle">We Think Your Job Description Most Closely Matches these Roles</h3>
+                <h2 class="output__subtitle">We Think Your Job Description Most Closely Matches these Roles</h2>
                 <p class="alert">Click on the links to find out more. When you have decided which job title is most closely aligned with your job description, click "Submit."</p>
-                <form action="/find-hire/" method="GET">
+                <form action="/find-hire/" class="selection__form" method="GET">
                     <table>
                         <thead class="output__list">
                             <tr>
@@ -52,14 +52,14 @@
                                 <th class="output__list-coloreditem" scope="col">Match Score</th>
                             </tr>
                         </thead>
-                        <tbody class="output__table"></tbody>
+                        <tbody class="output__table" style="text-align: left">
                             {% for n in range(1,11) %}
                                 <tr>
                                     <th class="output__list-item" scope="row">
-                                        <input type="radio" id="jobselection" name="jobselection" value={{ simResults.loc[n, 'JobTitle'] }}>
+                                        <input type="radio" id="jobselection" name="jobselection" class="jobselection" value={{ simResults.loc[n, 'JobTitle'] }} />
                                         <a class="output__table-item" href={{ links[n] }}>{{ simResults.loc[n, 'JobTitle'] }}</a>
                                     </th>
-                                    <td class="output__list-item">
+                                    <td class="output__list-item" style="text-align: center">
                                         {{ simResults.loc[n, 'Similarity'] }}
                                     </td>
                                 </tr>

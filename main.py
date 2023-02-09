@@ -81,7 +81,6 @@ async def post_matches(request: Request, jobdesc: UploadFile = File(...)):
     simResults = await sim_result_loop(jobdesc)
     links = get_links(simResults)
     print(time.time() - t)
-    print(links)
     return templates.TemplateResponse('candidate_matcher.html', context={'request': request, 'jobdesc': jobdesc, 'skills': skills, 'simResults': simResults, 'links': links})
 
 @app.get("/find-hire/", response_class=HTMLResponse)
