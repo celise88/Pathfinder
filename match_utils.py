@@ -13,6 +13,7 @@ from numpy.linalg import norm
 import ssl
 from dotenv import load_dotenv
 import plotly_express as px
+from scrape_onet import get_onet_code
 
 # SSL CERTIFICATE FIX
 try:
@@ -110,3 +111,9 @@ async def skillNER(resume):
     skills = {}
     [skills.update({word : "Skill"}) if classifier(word)[0]['label'] == 'LABEL_1' else skills.update({word: "Not Skill"}) for word in resume]
     return skills
+
+def get_links(simResults):
+    links = []
+    titles = simResults["JobTitle"]
+    [links.append("https://www.onetonline.org/link/summary/" + get_onet_code(title)) for title in titles]
+    return links

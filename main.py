@@ -13,7 +13,7 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.responses import HTMLResponse
 import pandas as pd
 from scrape_onet import get_onet_code, get_onet_description, get_onet_tasks
-from match_utils import neighborhoods, get_resume, skillNER, sim_result_loop
+from match_utils import neighborhoods, get_resume, skillNER, sim_result_loop, get_links
 import time
 
 # APP SETUP
@@ -67,3 +67,23 @@ async def post_matches(request: Request, resume: UploadFile = File(...)):
     simResults = await sim_result_loop(resume)
     print(time.time() - t)
     return templates.TemplateResponse('find_my_match.html', context={'request': request, 'resume': resume, 'skills': skills, 'simResults': simResults})
+
+@app.get("/find-my-hire/", response_class=HTMLResponse)
+def get_hires(request: Request):
+    return templates.TemplateResponse('candidate_matcher.html', context={'request': request})
+
+# POST
+@app.post('/find-my-hire/', response_class=HTMLResponse)
+async def post_matches(request: Request, jobdesc: UploadFile = File(...)):
+    t = time.time()
+    jobdesc = get_resume(jobdesc)
+    skills = await skillNER(jobdesc)
+    simResults = await sim_result_loop(jobdesc)
+    links = get_links(simResults)
+    print(time.time() - t)
+    print(links)
+    return templates.TemplateResponse('candidate_matcher.html', context={'request': request, 'jobdesc': jobdesc, 'skills': skills, 'simResults': simResults, 'links': links})
+
+@app.get("/find-hire/", response_class=HTMLResponse)
+def find_hire(request: Request):
+    return templates.TemplateResponse('find_hire.html', context={'request': request})
