@@ -10,7 +10,7 @@
 from fastapi import FastAPI, Request, Form, File, UploadFile, BackgroundTasks
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
-from fastapi.responses import HTMLResponse
+from fastapi.responses import HTMLResponse, Response
 import pandas as pd
 from scrape_onet import get_onet_code, get_onet_description, get_onet_tasks
 from match_utils import neighborhoods, get_resume, skillNER, sim_result_loop, get_links
@@ -71,7 +71,9 @@ async def post_matches(request: Request, resume: UploadFile = File(...)):
 
 @app.get("/find-match/", response_class=HTMLResponse)
 def find_match(request: Request):
-    return templates.TemplateResponse('find_match.html', context={'request': request})
+    jobselection = str(request.url).split("=")[1].replace('HTTP/1.1', '').replace("-", " ")
+    print(jobselection)
+    return templates.TemplateResponse('find_match.html', context={'request': request, 'jobselection': jobselection})
 
 @app.get("/find-my-hire/", response_class=HTMLResponse)
 def get_hires(request: Request):
@@ -90,4 +92,6 @@ async def post_matches(request: Request, jobdesc: UploadFile = File(...)):
 
 @app.get("/find-hire/", response_class=HTMLResponse)
 def find_hire(request: Request):
-    return templates.TemplateResponse('find_hire.html', context={'request': request})
+    jobselection = str(request.url).split("=")[1].replace('HTTP/1.1', '').replace("-", " ")
+    print(jobselection)
+    return templates.TemplateResponse('find_hire.html', context={'request': request, 'jobselection': jobselection})

@@ -57,7 +57,7 @@
                             {% for n in range(1,11) %}
                                 <tr>
                                     <th class="output__list-item" scope="row">
-                                        <input type="radio" id="jobselection" name="jobselection" class="jobselection" value={{ simResults.loc[n, 'JobTitle'] }} />
+                                        <input type="radio" name="jobselection" class="jobselection" value={{ simResults.loc[n, 'JobTitle'].replace(" ", "-") }} />
                                         <a class="output__table-item" href={{ links[n] }}>{{ simResults.loc[n, 'JobTitle'] }}</a>
                                     </th>
                                     <td class="output__list-item" style="text-align: center">
