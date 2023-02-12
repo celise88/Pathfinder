@@ -21,9 +21,28 @@
         </ul>
     </header>
     <main class="main">
-        <h1 class="pagetitle">Matching Candidates</h1>
-        <h2 class="pagesubtitle">We're sorry! This page is currently under construction.</h2>
-        <h2 class="pagesubtitle">Please check back soon to get candidates who are a great match for your {{ jobselection }} role!</h2>
+        <h1 class="pagetitle">User Login</h1>
+        <h2 class="pagesubtitle">Welcome to Pathfinder!</h2>
+        <h2 class="pagesubtitle">Enter your username and password below to get started</h2>
+        <section>
+            <form class="form__login" method="POST" enctype="application/x-www-form-urlencoded">
+                <label for="username" class="form__login-label" style="color: #2c2161">username:</label>
+                <input type="text" name="username" id="username" style="margin-bottom: 20px" class="form__input-field" />
+                <label for="password" class="form__login-label" style="color: #2c2161">password:</label>
+                <input type="text" name="password" id="password" class="form__input-field" />
+                <br>
+                <br>
+                <br>
+                <button type="submit" class="form__submit">Submit</button>
+                <br>
+                <button formaction="/register/" formmethod="GET" type="submit" class="form__submit">Create a new account</button>
+            </form>
+            <br>
+            <br>
+            {% if message %}
+                <h2 class="pagesubtitle">{{ message }}</h2>
+            {% endif %}
+        </section>
         <br>
         <br>
     </main>

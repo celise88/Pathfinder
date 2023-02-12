@@ -91,7 +91,7 @@ async def sim_result_loop(resume):
     simResults.reset_index(drop=True, inplace=True)
     for x in range(len(simResults)):
         simResults.iloc[x,1] = format_sim(simResults.iloc[x,1])
-    return simResults
+    return simResults, embeds
 
 async def skillNER(resume):
     def clean_my_text(text):

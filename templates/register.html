@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+    <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+    <header class="navbar">
+        <div class="navbar__brand">
+            <img src="/static/PF.png" class="navbar__logo" alt="Pathfinder logo" />
+            <a href="/" class="navbar__logo">Pathfinder</a>
+        </div>
+        <ul class="navbar__navigation">
+            <li class="navbar__navigation-item"><a href="/explore-job-neighborhoods/" class="navbar__link">Explore Job Neighborhoods</a></li>
+            <li class="navbar__navigation-item"><a href="/find-my-match/" class="navbar__link">Find My Match</a></li>
+            <li class="navbar__navigation-item"><a href="/find-my-hire/" class="navbar__link">Find My Next Hire</a></li>
+            <li class="navbar__navigation-item"><a href="/login/" class="navbar__link">Login</a></li>
+        </ul>
+    </header>
+    <main class="main">
+        <h1 class="pagetitle">User Registration</h1>
+        <h2 class="pagesubtitle">Welcome to Pathfinder!</h2>
+        <h2 class="pagesubtitle">Fill out the form below to register for an account</h2>
+        <section>
+            <form class="form__login" method="POST">
+                <label for="username" class="form__login-label" style="color: #2c2161;">username:</label>
+                <input type="text" name="username" id="username" style="margin-bottom: 20px" class="form__input-field" />
+                <label for="password" class="form__login-label" style="color: #2c2161;">password:</label>
+                <input type="text" name="password" id="password" style="margin-bottom: 20px" class="form__input-field" />
+                <label for="email" class="form__login-label" style="color: #2c2161;">email:</label>
+                <input type="text" name="email" id="email" style="margin-bottom: 20px" class="form__input-field" />
+                <br>
+                <br>
+                <button type="submit" class="form__submit">Submit</button>
+            </form>
+            <br>
+            <br>
+            {% if message %}
+                <h2 class="pagesubtitle">{{ message }}</h2>
+            {% endif %}
+            <br>
+            <br>
+        </section>
+    </main>
+    <footer class="footer">
+        <ul class="footer__text">
+            <li class="footer__text-item">© 2023 Pathfinder</li>
+        </ul>
+    </footer>
+</body>
+</html>

@@ -230,6 +230,19 @@ html {
     align-content: left;
 }
 
+.form__login {
+    display: flex;
+    flex-direction: column;
+    justify-content: center; 
+    align-items: center;
+}
+
+.form__login-label {
+    font-size: 14px;
+    color: #2c2161;
+    text-align: center;
+}
+
 .output__table-item {
     font-size: 14px;
     color: #2c2161;
