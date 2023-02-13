@@ -1,2 +1,2 @@
-static/*.csv filter=lfs diff=lfs merge=lfs -text
+static/cohere_embeddings.csv filter=lfs diff=lfs merge=lfs -text
 static/model_shards/*.bin filter=lfs diff=lfs merge=lfs -text
