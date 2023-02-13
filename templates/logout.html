@@ -18,15 +18,25 @@
             <li class="navbar__navigation-item"><a href="/find-my-match/" class="navbar__link">Find My Match</a></li>
             <li class="navbar__navigation-item"><a href="/find-my-hire/" class="navbar__link">Find My Next Hire</a></li>
             <li class="navbar__navigation-item"><a href="/login/" class="navbar__link">Login</a></li>
-            <li class="navbar__navigation-item"><a href="/logout/" class="navbar__link">Logout</a></li>
         </ul>
     </header>
     <main class="main">
-        <h1 class="pagetitle">Matching Jobs</h1>
-        <h2 class="pagesubtitle">We're sorry! This page is currently under construction.</h2>
-        <h2 class="pagesubtitle">Please check back soon to get {{ jobselection }} jobs that are a great match for your skillset and interests!</h2>
+        <h1 class="pagetitle">User Logout</h1>
+        <h2 class="pagesubtitle">Thenks for Visiting!</h2>
+        <h2 class="pagesubtitle">Hit submit below to log out of the system.</h2>
+        <section>
+            <form class="form__logout" method="POST" enctype="application/x-www-form-urlencoded">
+                <button type="submit" class="form__submit">Submit</button>
+            </form>
+            <br>
+            <br>
+            {% if message %}
+                <h2 class="pagesubtitle">{{ message }}</h2>
+            {% endif %}
+        </section>
         <br>
-        <br>    </main>
+        <br>
+    </main>
     <footer class="footer">
         <ul class="footer__text">
             <li class="footer__text-item">© 2023 Pathfinder</li>
@@ -34,3 +44,4 @@
     </footer>
 </body>
 </html>
+

@@ -18,12 +18,13 @@
             <li class="navbar__navigation-item"><a href="/find-my-match/" class="navbar__link">Find My Match</a></li>
             <li class="navbar__navigation-item"><a href="/find-my-hire/" class="navbar__link">Find My Next Hire</a></li>
             <li class="navbar__navigation-item"><a href="/login/" class="navbar__link">Login</a></li>
+            <li class="navbar__navigation-item"><a href="/logout/" class="navbar__link">Logout</a></li>
         </ul>
     </header>
     <main class="main">
         <h1 class="pagetitle">Find my Perfect Match!</h1>
         <h2 class="pagesubtitle">We'll help you find the perfect job for you! Upload your resume, CV, or cover letter to get started!</h2>
-        <form class="upload" method="POST" enctype="multipart/form-data">
+        <form id="upload" class="upload" method="POST" enctype="multipart/form-data">
             <input type="file" name="resume" id="resume" class="upload__file">
             <button type="submit" class="form__submit">Submit</button>
             <p class="alert">Note: This can take a while. Please be patient.</p>

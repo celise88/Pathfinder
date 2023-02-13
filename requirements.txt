@@ -17,6 +17,6 @@ transformers==4.25.1
 torch==1.13.1
 accelerate==0.16.0
 plotly-express==0.4.1
-sqlalchemy==2.0.3
 bcrypt==4.0.1
 passlib==1.7.4
+localStoragePy==0.2.3

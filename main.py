@@ -10,18 +10,17 @@
 from fastapi import FastAPI, Request, Form, File, UploadFile, BackgroundTasks, Depends
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
-from fastapi.responses import HTMLResponse, Response
-from sqlalchemy.orm.session import Session
+from fastapi.responses import HTMLResponse
 import pandas as pd
+pd.set_option('display.max_colwidth', 100)
 import time
 from uuid import uuid1
-from scrape_onet import get_onet_code, get_onet_description, get_onet_tasks
-from match_utils import neighborhoods, get_resume, skillNER, sim_result_loop, get_links
-from db_utils import get_db, Base, engine
-from user_utils import DBUsers, Hash
+from localStoragePy import localStoragePy
+localStorage = localStoragePy('pathfinder', 'text')
 
-# DB SETUP
-Base.metadata.create_all(engine)
+from scrape_onet import get_onet_code, get_onet_description, get_onet_tasks
+from match_utils import neighborhoods, get_resume, skillNER, sim_result_loop, get_links, coSkillEmbed
+from user_utils import Hash
 
 # APP SETUP
 app = FastAPI()
@@ -40,33 +39,50 @@ def get_login(request: Request):
     return templates.TemplateResponse('login.html', context={'request': request})
 
 @app.post('/register/', response_class=HTMLResponse)
-def post_register(request: Request, username: str = Form(...), password: str = Form(...), email: str = Form(...), db: Session = Depends(get_db)):
-    new_user = DBUsers(id = str(uuid1()), username = username, email = email, password = Hash.bcrypt(password))
-    db.add(new_user)
-    db.commit()
-    db.refresh(new_user)
-    message = "You have registered successfully. Please log in to continue"
-    return templates.TemplateResponse('register.html', context={'request': request, 'message': message})
+def post_register(request: Request, username: str = Form(...), password: str = Form(...), email: str = Form(...)):
+    db = pd.read_csv('static/db/embeddings_db.csv')
+    if username not in db['username'] and email not in db['email']:
+        new_row = len(db.index)+1
+        db.loc[new_row, 'id'] = uuid1()
+        db.loc[new_row, 'username'] = username
+        db.loc[new_row, 'password'] = Hash.bcrypt(password)
+        db.loc[new_row, 'email'] = email
+        db.to_csv('static/db/embeddings_db.csv', index=False)
+        message = "You have registered successfully. Please log in to continue"
+        return templates.TemplateResponse('register.html', context={'request': request, 'message': message})
+    elif email in db['email']:
+        message = "That email address has already been registered. Please try again."
+        return templates.TemplateResponse('register.html', context={'request': request, 'message': message})
+    elif username in db['username']:
+        message = "That username has already been taken. Please select another."
+        return templates.TemplateResponse('register.html', context={'request': request, 'message': message})
 
 @app.post("/login/", response_class=HTMLResponse)
-def post_login(request: Request, username: str = Form(...), password: str = Form(...), db: Session = Depends(get_db)):
-    un = db.query(DBUsers).filter(DBUsers.username == username).first()
-    pw = db.query(DBUsers).filter(DBUsers.username == username).first().password
-    if un and Hash.verify(password, pw) == True:
-        response = Response()
-        response.set_cookie(key="id", value=db.query(DBUsers).filter(DBUsers.username == username).first().id)
-        message = "You have been successfully logged in."
-        return templates.TemplateResponse('login.html', context={'request': request, "message": message})
+def post_login(request: Request, username: str = Form(...), password: str = Form(...)):
+    db = pd.read_csv('static/db/embeddings_db.csv')
+    if username in list(db['username']):
+        pw = db.loc[db['username'] == username,'password'].to_string()
+        pw = pw.split(' ')[4]
+        if Hash.verify(password, pw) == True:
+            un = db.loc[db['username'] == username,'username'].to_string().split(' ')[4]
+            localStorage.setItem('username', un)
+            print(localStorage.getItem('username'))
+            message = "You have been successfully logged in."
+            return templates.TemplateResponse('login.html', context={'request': request, "message": message})
     else:
         message = "Username or password not found. Please try again."
-        return templates.TemplateResponse('login.html', context={'request': request, "message": message})
+    return templates.TemplateResponse('login.html', context={'request': request, "message": message})
 
 @app.get("/logout/", response_class=HTMLResponse)
 def get_logout(request: Request):
-    with open('static/log.txt', 'w') as l:
-        l.write('')
+    return templates.TemplateResponse('logout.html', context={'request': request})
+
+@app.post("/logout/", response_class=HTMLResponse)
+def post_logout(request: Request):
+    localStorage.clear()
+    print(localStorage.getItem('username'))
     message = "You have been successfully logged out."
-    return templates.TemplateResponse('login.html', context={'request': request, "message": message})
+    return templates.TemplateResponse('logout.html', context={'request': request, 'message': message})
 
 ### JOB INFORMATION CENTER ###
 # GET
@@ -104,12 +120,27 @@ def get_matches(request: Request):
 
 # POST
 @app.post('/find-my-match/', response_class=HTMLResponse)
-async def post_matches(request: Request, resume: UploadFile = File(...)):
+async def post_matches(request: Request, bt: BackgroundTasks, resume: UploadFile = File(...)):
+    
     resume = get_resume(resume)
-    skills = await skillNER(resume)
-    simResults = await sim_result_loop(resume)
-    links = get_links(simResults[0])
-    return templates.TemplateResponse('find_my_match.html', context={'request': request, 'resume': resume, 'skills': skills, 'simResults': simResults[0], 'links': links})
+    db = pd.read_csv('static/db/embeddings_db.csv')
+    username = localStorage.getItem('username')
+    if username == None: 
+        return print("username was None")
+    else:
+        def add_data_to_db(resume, db, username):
+            # pd.concat([df, pd.DataFrame(embeds)], axis=1)
+            embeds = format(coSkillEmbed(resume)).replace('[[','').replace(']]','').split(',')
+            db.iloc[db['username']== username,4:] = embeds
+            db.to_csv('static/db/embeddings_db.csv')
+        
+        skills = await skillNER(resume)
+        simResults = await sim_result_loop(resume)
+        links = get_links(simResults[0])
+
+        bt.add_task(add_data_to_db, resume, db, username)
+
+        return templates.TemplateResponse('find_my_match.html', context={'request': request, 'resume': resume, 'skills': skills, 'simResults': simResults[0], 'links': links})
 
 @app.get("/find-match/", response_class=HTMLResponse)
 def find_match(request: Request):
