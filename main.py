@@ -40,14 +40,14 @@ def get_login(request: Request):
 
 @app.post('/register/', response_class=HTMLResponse)
 def post_register(request: Request, username: str = Form(...), password: str = Form(...), email: str = Form(...)):
-    db = pd.read_csv('static/db/embeddings_db.csv')
+    db = pd.read_csv('static/embeddings_db.csv')
     if username not in db['username'] and email not in db['email']:
         new_row = len(db.index)+1
         db.loc[new_row, 'id'] = uuid1()
         db.loc[new_row, 'username'] = username
         db.loc[new_row, 'password'] = Hash.bcrypt(password)
         db.loc[new_row, 'email'] = email
-        db.to_csv('static/db/embeddings_db.csv', index=False)
+        db.to_csv('static/embeddings_db.csv', index=False)
         message = "You have registered successfully. Please log in to continue"
         return templates.TemplateResponse('register.html', context={'request': request, 'message': message})
     elif email in db['email']:
@@ -59,7 +59,7 @@ def post_register(request: Request, username: str = Form(...), password: str = F
 
 @app.post("/login/", response_class=HTMLResponse)
 def post_login(request: Request, username: str = Form(...), password: str = Form(...)):
-    db = pd.read_csv('static/db/embeddings_db.csv')
+    db = pd.read_csv('static/embeddings_db.csv')
     if username in list(db['username']):
         pw = db.loc[db['username'] == username,'password'].to_string()
         pw = pw.split(' ')[4]
@@ -123,7 +123,7 @@ def get_matches(request: Request):
 async def post_matches(request: Request, bt: BackgroundTasks, resume: UploadFile = File(...)):
     
     resume = get_resume(resume)
-    db = pd.read_csv('static/db/embeddings_db.csv')
+    db = pd.read_csv('static/embeddings_db.csv')
     username = localStorage.getItem('username')
     if username == None: 
         return print("username was None")
@@ -132,7 +132,7 @@ async def post_matches(request: Request, bt: BackgroundTasks, resume: UploadFile
             # pd.concat([df, pd.DataFrame(embeds)], axis=1)
             embeds = format(coSkillEmbed(resume)).replace('[[','').replace(']]','').split(',')
             db.iloc[db['username']== username,4:] = embeds
-            db.to_csv('static/db/embeddings_db.csv')
+            db.to_csv('static/embeddings_db.csv')
         
         skills = await skillNER(resume)
         simResults = await sim_result_loop(resume)
