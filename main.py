@@ -12,7 +12,6 @@ from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import HTMLResponse
 import pandas as pd
-pd.set_option('display.max_colwidth', 100)
 import time
 from uuid import uuid1
 from localStoragePy import localStoragePy
@@ -59,6 +58,7 @@ def post_register(request: Request, username: str = Form(...), password: str = F
 
 @app.post("/login/", response_class=HTMLResponse)
 def post_login(request: Request, username: str = Form(...), password: str = Form(...)):
+    pd.set_option('display.max_colwidth', 100)
     db = pd.read_csv('static/embeddings_db.csv')
     if username in list(db['username']):
         pw = db.loc[db['username'] == username,'password'].to_string()
@@ -129,7 +129,6 @@ async def post_matches(request: Request, bt: BackgroundTasks, resume: UploadFile
         return print("username was None")
     else:
         def add_data_to_db(resume, db, username):
-            # pd.concat([df, pd.DataFrame(embeds)], axis=1)
             embeds = format(coSkillEmbed(resume)).replace('[[','').replace(']]','').split(',')
             db.iloc[db['username']== username,4:] = embeds
             db.to_csv('static/embeddings_db.csv')
