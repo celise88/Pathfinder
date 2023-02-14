@@ -37,6 +37,7 @@ html {
     flex-direction: row;
     list-style: none;
     padding: 0;
+    align-items: center;
     color: #5c6b70
 }
 
