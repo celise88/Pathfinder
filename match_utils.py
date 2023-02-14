@@ -31,7 +31,7 @@ if os.path.isdir('nltk_data')==False:
 load_dotenv()
 
 # LOAD COHERE EMBEDDINGS:
-simdat = pd.read_csv('static/cohere_embeddings.csv')
+simdat = pd.read_csv('static/embeddings/cohere_embeddings.csv')
 coheredat = pd.read_csv('static/cohere_tSNE_dat.csv')
 
 # LOAD FINE-TUNED MODEL 
