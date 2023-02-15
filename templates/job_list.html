@@ -41,7 +41,10 @@
             <h1 class="sectiontitle">{{ jobtitle }}</h1>
             <p class="sectiontext">{{ jobdescription }}</p>
         </section>
+        {% if jobtitle %}
         <h1 class="pagesubtitle">About the Job</h1>
+        {% endif %}
+        {% if tasks %}
         <section>
             <h1 class="sectiontitle">Work Tasks:</h1>
             <ui class="sectionlist"></ui>
@@ -50,39 +53,59 @@
                 {% endfor %}
             </ui>
         </section>
+        {% endif %}
+        {% if activities %}
         <section>
             <h1 class="sectiontitle">Other Work Activities:</h1>
-            <p class="sectiontext">{{ activities or "This section is under construction." }}</p>
+            <p class="sectiontext">{{ activities }}</p>
         </section>
+        {% endif %}
+        {% if conditions %}
         <section>
             <h1 class="sectiontitle">Work Conditions:</h1>
-            <p class="sectiontext">{{ conditions or "This section is under construction." }}</p>
+            <p class="sectiontext">{{ conditions }}</p>
         </section>
+        {% endif %}
+        {% if compensation %}
         <section>
             <h1 class="sectiontitle">Compensation:</h1>
-            <p class="sectiontext">{{ compensation or "This section is under construction." }}</p>
+            <p class="sectiontext">{{ compensation }}</p>
         </section>
+        {% endif %}
+        {% if jobtitle %}
         <h1 class="pagesubtitle">About the Qualified Candidate</h1>
+        <h1 class="pagesubtitle">We're sorry! This section is currently under construction. Please check back soon to see the characteristics necessary to be great {{ jobtitle }}.</h1>
+        {% endif %}
+        {% if preparation %}
         <section>
             <h1 class="sectiontitle">Has Degree(s) &/or License(s)/Certification(s) in:</h1>
-            <p class="sectiontext">{{ preparation or "This section is under construction." }}</p>
+            <p class="sectiontext">{{ preparation }}</p>
         </section>
+        {% endif %}
+        {% if knowledge %}
         <section>
             <h1 class="sectiontitle">Knows About:</h1>
-            <p class="sectiontext">{{ knowledge or "This section is under construction." }}</p>
+            <p class="sectiontext">{{ knowledge }}</p>
         </section>
+        {% endif %}
+        {% if skills %}
         <section>
             <h1 class="sectiontitle">Is Skilled at:</h1>
-            <p class="sectiontext">{{ skills or "This section is under construction." }}</p>
+            <p class="sectiontext">{{ skills }}</p>
         </section>
+        {% endif %}
+        {% if abilities %}
         <section>
             <h1 class="sectiontitle">Is Able to:</h1>
-            <p class="sectiontext">{{ abilities or "This section is under construction." }}</p>
+            <p class="sectiontext">{{ abilities }}</p>
         </section>
+        {% endif %}
+        {% if interests %}
         <section>
             <h1 class="sectiontitle">Is Interested in:</h1>
-            <p class="sectiontext">{{ interests or "This section is under construction." }}</p>
+            <p class="sectiontext">{{ interests }}</p>
         </section>
+        {% endif %}
     </main>
     <footer class="footer">
         <ul class="footer__text">
