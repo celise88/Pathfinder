@@ -18,7 +18,7 @@ from localStoragePy import localStoragePy
 localStorage = localStoragePy('pathfinder', 'text')
 
 from scrape_onet import get_onet_code, get_onet_description, get_onet_tasks
-from match_utils import neighborhoods, get_resume, skillNER, sim_result_loop, get_links, coSkillEmbed
+from match_utils import neighborhoods, get_resume, skillNER, sim_result_loop, get_links, coSkillEmbed, sim_result_loop_jobFinder
 from user_utils import Hash
 
 # APP SETUP
@@ -143,18 +143,21 @@ def get_matches(request: Request):
 @app.post('/find-my-match/', response_class=HTMLResponse)
 async def post_matches(request: Request, bt: BackgroundTasks, resume: UploadFile = File(...)):
     
-    resume = get_resume(resume)
-    username = localStorage.getItem('username')
-    db = pd.read_csv('static/res_embeddings.csv')
-    
     def add_data_to_db(resume, db, username):
         embeds = format(coSkillEmbed(resume)).replace('[[','').replace(']]','').split(',')
         db.iloc[db['username']== username,5:] = embeds
         db.to_csv('static/res_embeddings.csv', index=False)
+
+    resume = get_resume(resume)
+    username = localStorage.getItem('username')
+    db = pd.read_csv('static/res_embeddings.csv')
     
     skills = await skillNER(resume)
     simResults = await sim_result_loop(resume)
     links = get_links(simResults[0])
+
+    job_matches = await sim_result_loop_jobFinder(resume)
+    print(job_matches)
 
     bt.add_task(add_data_to_db, resume, db, username)
 
@@ -196,3 +199,7 @@ def find_hire(request: Request):
     jobselection = str(request.url).split("=")[1].replace('HTTP/1.1', '').replace("-", " ")
     print(jobselection)
     return templates.TemplateResponse('find_hire.html', context={'request': request, 'jobselection': jobselection})
+
+@app.get("/find-job/", response_class=HTMLResponse)
+def find_job(request: Request):
+    pass

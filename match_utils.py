@@ -118,3 +118,23 @@ def get_links(simResults):
     titles = simResults["JobTitle"]
     [links.append("https://www.onetonline.org/link/summary/" + get_onet_code(title)) for title in titles]
     return links
+
+async def sim_result_loop_jobFinder(resume):
+    embeds = coSkillEmbed(resume)
+    def cosine(A, B):
+        return np.dot(A,B)/(norm(A)*norm(B))
+    def format_sim(sim):
+        return "{:0.2f}".format(sim)
+    jobdat = pd.read_csv('static/jd_embeddings.csv')
+    jobembeds = jobdat.iloc[:,5:].dropna()
+    simResults = []
+    [simResults.append(cosine(np.array(embeds), np.array(jobembeds.iloc[i,:]))) for i in range(len(jobembeds))]
+    simResults = pd.DataFrame(simResults)
+    simResults['job_id'] = jobdat['id']
+    simResults = simResults.iloc[:,[1,0]]
+    simResults.columns = ['job_id', 'Similarity']
+    simResults = simResults.sort_values(by = "Similarity", ascending = False)
+    simResults.reset_index(drop=True, inplace=True)
+    for x in range(len(simResults)):
+        simResults.iloc[x,1] = format_sim(simResults.iloc[x,1])
+    return simResults
