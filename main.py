@@ -18,7 +18,7 @@ from localStoragePy import localStoragePy
 localStorage = localStoragePy('pathfinder', 'text')
 
 from scrape_onet import get_onet_code, get_onet_description, get_onet_tasks
-from match_utils import neighborhoods, get_resume, skillNER, sim_result_loop, get_links, coSkillEmbed, sim_result_loop_jobFinder
+from match_utils import neighborhoods, get_resume, skillNER, sim_result_loop, get_links, coSkillEmbed, sim_result_loop_jobFinder, sim_result_loop_candFinder
 from user_utils import Hash
 
 # APP SETUP
@@ -143,29 +143,30 @@ def get_matches(request: Request):
 @app.post('/find-my-match/', response_class=HTMLResponse)
 async def post_matches(request: Request, bt: BackgroundTasks, resume: UploadFile = File(...)):
     
-    def add_data_to_db(resume, db, username):
+    def add_data_to_db(resume):
+        username = localStorage.getItem('username')
+        db = pd.read_csv('static/res_embeddings.csv')
         embeds = format(coSkillEmbed(resume)).replace('[[','').replace(']]','').split(',')
         db.iloc[db['username']== username,5:] = embeds
         db.to_csv('static/res_embeddings.csv', index=False)
 
+    def get_jobs_from_db(resume):
+        job_matches = sim_result_loop_jobFinder(resume)
+        print(job_matches)
+
     resume = get_resume(resume)
-    username = localStorage.getItem('username')
-    db = pd.read_csv('static/res_embeddings.csv')
-    
     skills = await skillNER(resume)
     simResults = await sim_result_loop(resume)
     links = get_links(simResults[0])
 
-    job_matches = await sim_result_loop_jobFinder(resume)
-    print(job_matches)
-
-    bt.add_task(add_data_to_db, resume, db, username)
+    bt.add_task(add_data_to_db, resume)
+    bt.add_task(get_jobs_from_db, resume)
 
     return templates.TemplateResponse('find_my_match.html', context={'request': request, 'resume': resume, 'skills': skills, 'simResults': simResults[0], 'links': links})
 
 @app.get("/find-match/", response_class=HTMLResponse)
 def find_match(request: Request):
-    jobselection = str(request.url).split("=")[1].replace('HTTP/1.1', '').replace("-", " ")
+    jobselection = str(request.url).split("=")[1].replace('HTTP/1.1', '').replace("-", " ").replace("%2C", "")
     print(jobselection)
     return templates.TemplateResponse('find_match.html', context={'request': request, 'jobselection': jobselection})
 
@@ -176,27 +177,31 @@ def get_hires(request: Request):
 # POST
 @app.post('/find-my-hire/', response_class=HTMLResponse)
 async def post_matches(request: Request, bt: BackgroundTasks, jobdesc: UploadFile = File(...)):
-    
-    jobdesc = get_resume(jobdesc)
-    username = localStorage.getItem('username')
-    db = pd.read_csv('static/jd_embeddings.csv')
-    
-    def add_data_to_db(resume, db, username):
-        embeds = format(coSkillEmbed(resume)).replace('[[','').replace(']]','').split(',')
+
+    def add_data_to_db(jobdesc):
+        username = localStorage.getItem('username')
+        db = pd.read_csv('static/jd_embeddings.csv')
+        embeds = format(coSkillEmbed(jobdesc)).replace('[[','').replace(']]','').split(',')
         db.iloc[db['username']== username,5:] = embeds
         db.to_csv('static/jd_embeddings.csv', index=False)
     
+    def get_cand_from_db(jobdesc):
+        cand_matches = sim_result_loop_candFinder(jobdesc)
+        print(cand_matches)
+
+    jobdesc = get_resume(jobdesc)
     skills = await skillNER(jobdesc)
     simResults = await sim_result_loop(jobdesc)
     links = get_links(simResults[0])
 
-    bt.add_task(add_data_to_db, jobdesc, db, username)
+    bt.add_task(add_data_to_db, jobdesc)
+    bt.add_task(get_cand_from_db, jobdesc)
 
     return templates.TemplateResponse('candidate_matcher.html', context={'request': request, 'jobdesc': jobdesc, 'skills': skills, 'simResults': simResults[0], 'links': links})
 
 @app.get("/find-hire/", response_class=HTMLResponse)
 def find_hire(request: Request):
-    jobselection = str(request.url).split("=")[1].replace('HTTP/1.1', '').replace("-", " ")
+    jobselection = str(request.url).split("=")[1].replace('HTTP/1.1', '').replace("-", " ").replace("%2C", "")
     print(jobselection)
     return templates.TemplateResponse('find_hire.html', context={'request': request, 'jobselection': jobselection})
 

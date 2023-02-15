@@ -119,7 +119,7 @@ def get_links(simResults):
     [links.append("https://www.onetonline.org/link/summary/" + get_onet_code(title)) for title in titles]
     return links
 
-async def sim_result_loop_jobFinder(resume):
+def sim_result_loop_jobFinder(resume):
     embeds = coSkillEmbed(resume)
     def cosine(A, B):
         return np.dot(A,B)/(norm(A)*norm(B))
@@ -131,10 +131,32 @@ async def sim_result_loop_jobFinder(resume):
     [simResults.append(cosine(np.array(embeds), np.array(jobembeds.iloc[i,:]))) for i in range(len(jobembeds))]
     simResults = pd.DataFrame(simResults)
     simResults['job_id'] = jobdat['id']
-    simResults = simResults.iloc[:,[1,0]]
-    simResults.columns = ['job_id', 'Similarity']
-    simResults = simResults.sort_values(by = "Similarity", ascending = False)
+    simResults['emp_email'] = jobdat['email']
+    simResults = simResults.iloc[:,[1,2,0]]
+    simResults.columns = ['job_id', 'employer_email', 'similarity']
+    simResults = simResults.sort_values(by = "similarity", ascending = False)
     simResults.reset_index(drop=True, inplace=True)
     for x in range(len(simResults)):
-        simResults.iloc[x,1] = format_sim(simResults.iloc[x,1])
+        simResults.iloc[x,2] = format_sim(simResults.iloc[x,2])
+    return simResults
+
+def sim_result_loop_candFinder(jobdesc):
+    embeds = coSkillEmbed(jobdesc)
+    def cosine(A, B):
+        return np.dot(A,B)/(norm(A)*norm(B))
+    def format_sim(sim):
+        return "{:0.2f}".format(sim)
+    canddat = pd.read_csv('static/res_embeddings.csv')
+    candembeds = canddat.iloc[:,5:].dropna()
+    simResults = []
+    [simResults.append(cosine(np.array(embeds), np.array(candembeds.iloc[i,:]))) for i in range(len(candembeds))]
+    simResults = pd.DataFrame(simResults)
+    simResults['cand_id'] = canddat['id']
+    simResults['cand_email'] = canddat['email']
+    simResults = simResults.iloc[:,[1,2,0]]
+    simResults.columns = ['candidate_id', 'candidate_email', 'similarity']
+    simResults = simResults.sort_values(by = "similarity", ascending = False)
+    simResults.reset_index(drop=True, inplace=True)
+    for x in range(len(simResults)):
+        simResults.iloc[x,2] = format_sim(simResults.iloc[x,2])
     return simResults
