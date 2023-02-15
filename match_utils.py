@@ -73,8 +73,13 @@ def coSkillEmbed(text):
     except CohereError as e:
         return e
 
-async def sim_result_loop(resume):
-    embeds = coSkillEmbed(resume)
+async def sim_result_loop(skilltext):
+    if type(skilltext) == str:
+        skills = skilltext
+    if type(skilltext) == dict:
+        skills = [key for key, value in skilltext.items() if value == "Skill"]
+        skills = str(skills).replace("'", "").replace(",", "")
+    embeds = coSkillEmbed(skills)
     def cosine(A, B):
         return np.dot(A,B)/(norm(A)*norm(B))
     def format_sim(sim):
@@ -89,6 +94,10 @@ async def sim_result_loop(resume):
     simResults = simResults.iloc[:13,:]
     simResults = simResults.iloc[1:,:]
     simResults.reset_index(drop=True, inplace=True)
+    if simResults['Similarity'].min() < 0.5:
+        simResults['Similarity'] = simResults['Similarity'] + (0.5 - simResults['Similarity'].min())
+        if simResults['Similarity'].max() > 1.0:
+            simResults['Similarity'] = simResults['Similarity'] - (simResults['Similarity'].max() - 1.0)
     for x in range(len(simResults)):
         simResults.iloc[x,1] = format_sim(simResults.iloc[x,1])
     return simResults, embeds

@@ -143,8 +143,9 @@ def get_matches(request: Request):
 @app.post('/find-my-match/', response_class=HTMLResponse)
 async def post_matches(request: Request, bt: BackgroundTasks, resume: UploadFile = File(...)):
     
+    username = localStorage.getItem('username')
+
     def add_data_to_db(resume):
-        username = localStorage.getItem('username')
         db = pd.read_csv('static/res_embeddings.csv')
         embeds = format(coSkillEmbed(resume)).replace('[[','').replace(']]','').split(',')
         db.iloc[db['username']== username,5:] = embeds
@@ -159,8 +160,9 @@ async def post_matches(request: Request, bt: BackgroundTasks, resume: UploadFile
     simResults = await sim_result_loop(resume)
     links = get_links(simResults[0])
 
-    bt.add_task(add_data_to_db, resume)
-    bt.add_task(get_jobs_from_db, resume)
+    if username is not None:
+        bt.add_task(add_data_to_db, resume)
+        bt.add_task(get_jobs_from_db, resume)
 
     return templates.TemplateResponse('find_my_match.html', context={'request': request, 'resume': resume, 'skills': skills, 'simResults': simResults[0], 'links': links})
 
@@ -178,8 +180,9 @@ def get_hires(request: Request):
 @app.post('/find-my-hire/', response_class=HTMLResponse)
 async def post_matches(request: Request, bt: BackgroundTasks, jobdesc: UploadFile = File(...)):
 
+    username = localStorage.getItem('username')
+
     def add_data_to_db(jobdesc):
-        username = localStorage.getItem('username')
         db = pd.read_csv('static/jd_embeddings.csv')
         embeds = format(coSkillEmbed(jobdesc)).replace('[[','').replace(']]','').split(',')
         db.iloc[db['username']== username,5:] = embeds
@@ -194,8 +197,9 @@ async def post_matches(request: Request, bt: BackgroundTasks, jobdesc: UploadFil
     simResults = await sim_result_loop(jobdesc)
     links = get_links(simResults[0])
 
-    bt.add_task(add_data_to_db, jobdesc)
-    bt.add_task(get_cand_from_db, jobdesc)
+    if username is not None:
+        bt.add_task(add_data_to_db, jobdesc)
+        bt.add_task(get_cand_from_db, jobdesc)
 
     return templates.TemplateResponse('candidate_matcher.html', context={'request': request, 'jobdesc': jobdesc, 'skills': skills, 'simResults': simResults[0], 'links': links})
 
