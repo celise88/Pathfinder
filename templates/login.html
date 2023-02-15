@@ -24,7 +24,11 @@
     <main class="main">
         <h1 class="pagetitle">User Login</h1>
         <h2 class="pagesubtitle">Welcome to Pathfinder!</h2>
-        <h2 class="pagesubtitle">Enter your username and password below to get started</h2>
+        {% if message %}
+            <h2 class="pagesubtitle">{{ message }}</h2>
+        {% else %}
+            <h2 class="pagesubtitle">Enter your username and password below to get started</h2>
+        {% endif %}
         <section>
             <form class="form__login" method="POST" enctype="application/x-www-form-urlencoded">
                 <label for="username" class="form__login-label" style="color: #2c2161">username:</label>
@@ -40,9 +44,6 @@
             </form>
             <br>
             <br>
-            {% if message %}
-                <h2 class="pagesubtitle">{{ message }}</h2>
-            {% endif %}
         </section>
         <br>
         <br>

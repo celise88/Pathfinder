@@ -23,7 +23,11 @@
     <main class="main">
         <h1 class="pagetitle">User Registration</h1>
         <h2 class="pagesubtitle">Welcome to Pathfinder!</h2>
-        <h2 class="pagesubtitle">Fill out the form below to register for an account</h2>
+        {% if message %}
+            <h2 class="pagesubtitle">{{ message }}</h2>
+        {% else %}
+            <h2 class="pagesubtitle">Fill out the form below to register for an account</h2>
+        {% endif %}
         <section>
             <form class="form__login" method="POST">
                 <label for="username" class="form__login-label" style="color: #2c2161;">username:</label>
@@ -32,15 +36,17 @@
                 <input type="text" name="password" id="password" style="margin-bottom: 20px" class="form__input-field" />
                 <label for="email" class="form__login-label" style="color: #2c2161;">email:</label>
                 <input type="text" name="email" id="email" style="margin-bottom: 20px" class="form__input-field" />
+                <label for="email" class="form__login-label" style="color: #2c2161;">account type:</label>
+                <select name="account_type" id="account_type" style="margin-bottom: 20px" class="form__dropdown">
+                    <option value="candidate">Candidate</option>
+                    <option value="employer">Employer</option>
+                </select>
                 <br>
                 <br>
                 <button type="submit" class="form__submit">Submit</button>
             </form>
             <br>
             <br>
-            {% if message %}
-                <h2 class="pagesubtitle">{{ message }}</h2>
-            {% endif %}
             <br>
             <br>
         </section>

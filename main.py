@@ -38,16 +38,23 @@ def get_login(request: Request):
     return templates.TemplateResponse('login.html', context={'request': request})
 
 @app.post('/register/', response_class=HTMLResponse)
-def post_register(request: Request, username: str = Form(...), password: str = Form(...), email: str = Form(...)):
-    db = pd.read_csv('static/embeddings_db.csv')
+def post_register(request: Request, username: str = Form(...), password: str = Form(...), email: str = Form(...), account_type: str = Form(...)):
+    if account_type == "candidate":
+        db = pd.read_csv('static/res_embeddings.csv')
+    else:
+        db = pd.read_csv('static/jd_embeddings.csv')
     if username not in db['username'] and email not in db['email']:
         new_row = len(db.index)+1
         db.loc[new_row, 'id'] = uuid1()
         db.loc[new_row, 'username'] = username
         db.loc[new_row, 'password'] = Hash.bcrypt(password)
         db.loc[new_row, 'email'] = email
-        db.to_csv('static/embeddings_db.csv', index=False)
+        db.loc[new_row, 'account_type'] = account_type
         message = "You have registered successfully. Please log in to continue"
+        if account_type == "candidate":
+            db.to_csv('static/res_embeddings.csv', index=False)
+        else:
+            db.to_csv('static/jd_embeddings.csv', index=False)
         return templates.TemplateResponse('register.html', context={'request': request, 'message': message})
     elif email in db['email']:
         message = "That email address has already been registered. Please try again."
@@ -58,17 +65,31 @@ def post_register(request: Request, username: str = Form(...), password: str = F
 
 @app.post("/login/", response_class=HTMLResponse)
 def post_login(request: Request, username: str = Form(...), password: str = Form(...)):
+    
     pd.set_option('display.max_colwidth', 100)
-    db = pd.read_csv('static/embeddings_db.csv')
-    if username in list(db['username']):
-        pw = db.loc[db['username'] == username,'password'].to_string()
+    dbres = pd.read_csv('static/res_embeddings.csv')
+    dbjd = pd.read_csv('static/jd_embeddings.csv')
+
+    if username in list(dbres['username']):
+        pw = dbres.loc[dbres['username'] == username,'password'].to_string()
         pw = pw.split(' ')[4]
         if Hash.verify(password, pw) == True:
-            un = db.loc[db['username'] == username,'username'].to_string().split(' ')[4]
+            un = dbres.loc[dbres['username'] == username,'username'].to_string().split(' ')[4]
             localStorage.setItem('username', un)
             print(localStorage.getItem('username'))
             message = "You have been successfully logged in."
-            return templates.TemplateResponse('login.html', context={'request': request, "message": message})
+        else:
+            message = "Username or password not found. Please try again."
+    elif username in list(dbjd['username']):
+        pw = dbjd.loc[dbjd['username'] == username,'password'].to_string()
+        pw = pw.split(' ')[4]
+        if Hash.verify(password, pw) == True:
+            un = dbjd.loc[dbjd['username'] == username,'username'].to_string().split(' ')[4]
+            localStorage.setItem('username', un)
+            print(localStorage.getItem('username'))
+            message = "You have been successfully logged in."
+        else:
+            message = "Username or password not found. Please try again."
     else:
         message = "Username or password not found. Please try again."
     return templates.TemplateResponse('login.html', context={'request': request, "message": message})
@@ -123,23 +144,21 @@ def get_matches(request: Request):
 async def post_matches(request: Request, bt: BackgroundTasks, resume: UploadFile = File(...)):
     
     resume = get_resume(resume)
-    db = pd.read_csv('static/embeddings_db.csv')
     username = localStorage.getItem('username')
-    if username == None: 
-        return print("username was None")
-    else:
-        def add_data_to_db(resume, db, username):
-            embeds = format(coSkillEmbed(resume)).replace('[[','').replace(']]','').split(',')
-            db.iloc[db['username']== username,4:] = embeds
-            db.to_csv('static/embeddings_db.csv')
-        
-        skills = await skillNER(resume)
-        simResults = await sim_result_loop(resume)
-        links = get_links(simResults[0])
+    db = pd.read_csv('static/res_embeddings.csv')
+    
+    def add_data_to_db(resume, db, username):
+        embeds = format(coSkillEmbed(resume)).replace('[[','').replace(']]','').split(',')
+        db.iloc[db['username']== username,5:] = embeds
+        db.to_csv('static/res_embeddings.csv', index=False)
+    
+    skills = await skillNER(resume)
+    simResults = await sim_result_loop(resume)
+    links = get_links(simResults[0])
 
-        bt.add_task(add_data_to_db, resume, db, username)
+    bt.add_task(add_data_to_db, resume, db, username)
 
-        return templates.TemplateResponse('find_my_match.html', context={'request': request, 'resume': resume, 'skills': skills, 'simResults': simResults[0], 'links': links})
+    return templates.TemplateResponse('find_my_match.html', context={'request': request, 'resume': resume, 'skills': skills, 'simResults': simResults[0], 'links': links})
 
 @app.get("/find-match/", response_class=HTMLResponse)
 def find_match(request: Request):
@@ -153,13 +172,23 @@ def get_hires(request: Request):
 
 # POST
 @app.post('/find-my-hire/', response_class=HTMLResponse)
-async def post_matches(request: Request, jobdesc: UploadFile = File(...)):
-    t = time.time()
+async def post_matches(request: Request, bt: BackgroundTasks, jobdesc: UploadFile = File(...)):
+    
     jobdesc = get_resume(jobdesc)
+    username = localStorage.getItem('username')
+    db = pd.read_csv('static/jd_embeddings.csv')
+    
+    def add_data_to_db(resume, db, username):
+        embeds = format(coSkillEmbed(resume)).replace('[[','').replace(']]','').split(',')
+        db.iloc[db['username']== username,5:] = embeds
+        db.to_csv('static/jd_embeddings.csv', index=False)
+    
     skills = await skillNER(jobdesc)
     simResults = await sim_result_loop(jobdesc)
     links = get_links(simResults[0])
-    print(time.time() - t)
+
+    bt.add_task(add_data_to_db, jobdesc, db, username)
+
     return templates.TemplateResponse('candidate_matcher.html', context={'request': request, 'jobdesc': jobdesc, 'skills': skills, 'simResults': simResults[0], 'links': links})
 
 @app.get("/find-hire/", response_class=HTMLResponse)

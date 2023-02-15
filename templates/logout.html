@@ -22,17 +22,18 @@
     </header>
     <main class="main">
         <h1 class="pagetitle">User Logout</h1>
-        <h2 class="pagesubtitle">Thenks for Visiting!</h2>
-        <h2 class="pagesubtitle">Hit submit below to log out of the system.</h2>
+        <h2 class="pagesubtitle">Thanks for Visiting!</h2>
+        {% if message %}
+            <h2 class="pagesubtitle">{{ message }}</h2>
+        {% else %}
+            <h2 class="pagesubtitle">Hit submit below to log out of the system.</h2>
+        {% endif %}
         <section>
             <form class="form__logout" method="POST" enctype="application/x-www-form-urlencoded">
                 <button type="submit" class="form__submit">Submit</button>
             </form>
             <br>
             <br>
-            {% if message %}
-                <h2 class="pagesubtitle">{{ message }}</h2>
-            {% endif %}
         </section>
         <br>
         <br>
