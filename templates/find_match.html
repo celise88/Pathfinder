@@ -25,9 +25,12 @@
         <h1 class="pagetitle">Matching Jobs</h1>
         {% if jobpostings %}
         <h2 class="pagesubtitle">Here are the top 10 {{ jobtitle }} jobs in {{ state }} that are a great match for your skillset and interests!</h2>
+        <p class="form__login-label">(Hint: Click the links to find out more)</p>
+        <br>
+        <br>
         <ul class="sectionlist">
             {% for n in range(10) %}
-            <li class="sectionlist__item"><a href={{ linklist[n] }}>{{ jobpostings[n] }}</a></li>
+            <li class="sectionlist__item"><a style="color: #2c2161" href={{ linklist[n] }}>{{ jobpostings[n] }}</a></li>
             {% endfor %}
         </ul>
         {% else %}
