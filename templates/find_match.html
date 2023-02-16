@@ -23,14 +23,25 @@
     </header>
     <main class="main">
         <h1 class="pagetitle">Matching Jobs</h1>
+        {% if jobpostings %}
+        <h2 class="pagesubtitle">Here are the top 10 {{ jobtitle }} jobs in {{ state }} that are a great match for your skillset and interests!</h2>
+        <ul class="sectionlist">
+            {% for n in range(10) %}
+            <li class="sectionlist__item"><a href={{ linklist[n] }}>{{ jobpostings[n] }}</a></li>
+            {% endfor %}
+        </ul>
+        {% else %}
         <h2 class="pagesubtitle">We're sorry! This page is currently under construction.</h2>
         <h2 class="pagesubtitle">Please check back soon to get {{ jobselection }} jobs that are a great match for your skillset and interests!</h2>
+        {% endif %}
         <br>
-        <br>    </main>
+        <br>    
+    </main>
     <footer class="footer">
         <ul class="footer__text">
             <li class="footer__text-item">© 2023 Pathfinder</li>
-        </ul>
+            <li class="footer__text-item">Job postings courtesy of <a class="footer__text-link" href="https://www.onetonline.org">onetonline.org</li>
+            </ul>
     </footer>
 </body>
 </html>

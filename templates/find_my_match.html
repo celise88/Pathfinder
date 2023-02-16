@@ -46,7 +46,7 @@
             <article class="output__section">
                 <h2 class="output__subtitle">Job Matches</h3>
                 <p class="alert">(Note: You can click on the links to find out more.)</p>
-                <p class="alert">Instructions: When you have decided which job title is most closely aligned with your skills and interests, choose the corresponding radio button and click "Submit."</p>
+                <p class="alert">Instructions: Choose the radio button corresponding to the job title that is most closely aligned with your skills and interests"</p>
                 <form action="/find-match/" class="selection__form" method="GET">
                     <table>
                         <thead class="output__list">
@@ -71,9 +71,15 @@
                     </table>
                     <br>
                     <br>
-                    <div class="radio__submit">
-                        <button type="submit" class="radio__submit">Submit</button>
-                    </div>
+                    <label for="state" class="form__label">Select the state in which you would like to work:</label>
+                    <select name="state" class="form__dropdown" id="state">
+                        {% for state in statelist %}
+                        <option value="{{ state }}">{{ state }}</option>
+                        {% endfor %}
+                    </select>
+                    <br>
+                    <br>
+                    <button type="submit" class="radio__submit">Submit</button>
                 </form>
             </article>
             {% endif %}

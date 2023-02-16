@@ -17,7 +17,7 @@ from uuid import uuid1
 from localStoragePy import localStoragePy
 localStorage = localStoragePy('pathfinder', 'text')
 
-from scrape_onet import get_onet_code, get_onet_description, get_onet_tasks
+from scrape_onet import get_onet_code, get_onet_description, get_onet_tasks, get_job_postings
 from match_utils import neighborhoods, get_resume, skillNER, sim_result_loop, get_links, coSkillEmbed, sim_result_loop_jobFinder, sim_result_loop_candFinder
 from user_utils import Hash
 
@@ -143,6 +143,12 @@ def get_matches(request: Request):
 @app.post('/find-my-match/', response_class=HTMLResponse)
 async def post_matches(request: Request, bt: BackgroundTasks, resume: UploadFile = File(...)):
     
+    statelist = [ 'AK', 'AL', 'AR', 'AZ', 'CA', 'CO', 'CT', 'DC', 'DE', 'FL', 'GA',
+           'HI', 'IA', 'ID', 'IL', 'IN', 'KS', 'KY', 'LA', 'MA', 'MD', 'ME',
+           'MI', 'MN', 'MO', 'MS', 'MT', 'NC', 'ND', 'NE', 'NH', 'NJ', 'NM',
+           'NV', 'NY', 'OH', 'OK', 'OR', 'PA', 'RI', 'SC', 'SD', 'TN', 'TX',
+           'UT', 'VA', 'VT', 'WA', 'WI', 'WV', 'WY']
+
     username = localStorage.getItem('username')
 
     def add_data_to_db(resume):
@@ -164,13 +170,17 @@ async def post_matches(request: Request, bt: BackgroundTasks, resume: UploadFile
         bt.add_task(add_data_to_db, resume)
         bt.add_task(get_jobs_from_db, resume)
 
-    return templates.TemplateResponse('find_my_match.html', context={'request': request, 'resume': resume, 'skills': skills, 'simResults': simResults[0], 'links': links})
+    return templates.TemplateResponse('find_my_match.html', context={'request': request, 'resume': resume, 'skills': skills, 'simResults': simResults[0], 'links': links, 'statelist': statelist})
 
 @app.get("/find-match/", response_class=HTMLResponse)
 def find_match(request: Request):
-    jobselection = str(request.url).split("=")[1].replace('HTTP/1.1', '').replace("-", " ").replace("%2C", "")
-    print(jobselection)
-    return templates.TemplateResponse('find_match.html', context={'request': request, 'jobselection': jobselection})
+    jobtitle = str(request.url).split("=")[1].replace('HTTP/1.1', '').replace("-", " ").replace("%2C", "").replace('&state', '')
+    state = str(request.url).split("=")[2]
+    onetCode = get_onet_code(jobtitle)
+    postings = get_job_postings(onetCode, state)
+    jobpostings = postings[0]
+    linklist = postings[1]
+    return templates.TemplateResponse('find_match.html', context={'request': request, 'jobpostings': jobpostings, 'linklist': linklist, 'jobtitle': jobtitle, 'state': state})
 
 @app.get("/find-my-hire/", response_class=HTMLResponse)
 def get_hires(request: Request):

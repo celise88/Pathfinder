@@ -47,11 +47,11 @@
         {% if tasks %}
         <section>
             <h1 class="sectiontitle">Work Tasks:</h1>
-            <ui class="sectionlist"></ui>
+            <ul class="sectionlist">
                 {% for task in tasks %}
                 <li class="sectionlist__item">{{ task }}</li>
                 {% endfor %}
-            </ui>
+            </ul>
         </section>
         {% endif %}
         {% if activities %}
