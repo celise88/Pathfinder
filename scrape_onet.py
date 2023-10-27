@@ -36,6 +36,153 @@ def get_onet_tasks(onetCode):
     tasks = [''.join(map(lambda c: '' if c in '0123456789-' else c, task)) for task in tasks]
     return tasks
 
+def get_onet_ratings(onetCode):
+    headers = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/14.1.2 Safari/605.1.15'}
+    
+    activities_url = "https://www.onetonline.org/link/result/" + onetCode + "?c=wa&n_wa=0&s_wa=IM&c_wa=0"
+    context_url = "https://www.onetonline.org/link/result/" + onetCode + "?c=cx&n_cx=0&c_cx=0&s_cx=n"
+    
+    response = requests.get(activities_url, headers=headers)
+    soup = BeautifulSoup(response.text, 'html.parser')
+    tasks = str(soup.get_text('reportsubdesc')).replace("reportsubdesc", " ").replace("ImportanceCategoryTask ", "")
+    tasks = clean(tasks)
+    tasks = tasks.split('show all show top 10')[1]
+    tasks = tasks.split('back to top')[0]
+    tasks = remove_new_line(tasks).replace("related occupations", " ").replace("importance work activity", " ")
+    tasks = tasks.split(". ")
+    split_data = [item.split(" -- ")[0] for item in tasks]
+    num_desc = []
+    for i in range(len(tasks)):
+        temp = [','.join(item) for item in split_data][i].split(',')
+        num_desc.append([''.join([c for c in temp if c in '0123456789']), ''.join([c for c in temp if c not in '0123456789']).replace(' ) ', '')])
+    df = pd.DataFrame(num_desc, columns = ['Importance', 'Work Characteristic'])
+    df = df[df['Importance'] != '']
+    
+    response = requests.get(context_url, headers=headers)
+    soup = BeautifulSoup(response.text, 'html.parser')
+    tasks = str(soup.get_text('reportsubdesc')).replace("reportsubdesc", " ").replace("ImportanceCategoryTask ", "")
+    tasks = clean(tasks)
+    tasks = tasks.split('show all show top 10')[1]
+    tasks = tasks.split('back to top')[0]
+    tasks = remove_new_line(tasks).replace("related occupations", " ").replace("importance work activity", " ")
+    tasks = tasks.split("? ")
+    split_data = [item.split(" -- ")[0] for item in tasks]
+    num_desc = []
+    for i in range(len(tasks)):
+        temp = [','.join(item) for item in split_data][i].split(',')
+        num_desc.append([''.join([c for c in temp if c in '0123456789']), ''.join([c for c in temp if c not in '0123456789']).replace(')context work context', '')])
+    df2 = pd.DataFrame(num_desc, columns = ['Importance', 'Work Characteristic'])
+    df2 = df2[df2['Importance'] != '']
+    
+    job_df = pd.concat([df, df2], axis = 0)
+
+    skills_url = "https://www.onetonline.org/link/result/" + onetCode + "?c=sk&n_sk=0&s_sk=IM&c_sk=0"
+    knowledge_url = "https://www.onetonline.org/link/result/" + onetCode + "?c=kn&n_kn=0&s_kn=IM&c_kn=0"
+    abilities_url = "https://www.onetonline.org/link/result/" + onetCode + "?c=ab&n_ab=0&s_ab=IM&c_ab=0"
+    interests_url = "https://www.onetonline.org/link/result/" + onetCode + "?c=in&c_in=0"
+    values_url = "https://www.onetonline.org/link/result/" + onetCode + "?c=wv&c_wv=0"
+    style_url = "https://www.onetonline.org/link/result/" + onetCode + "?c=ws&n_ws=0&c_ws=0"
+
+    response = requests.get(skills_url, headers=headers)
+    soup = BeautifulSoup(response.text, 'html.parser')
+    tasks = str(soup.get_text('reportsubdesc')).replace("reportsubdesc", " ").replace("ImportanceCategoryTask ", "")
+    tasks = clean(tasks)
+    tasks = tasks.split('show all show top 10')[1]
+    tasks = tasks.split('back to top')[0]
+    tasks = remove_new_line(tasks).replace("related occupations", " ").replace(")importance skill", " ")
+    tasks = tasks.split(". ")
+    split_data = [item.split(" -- ")[0] for item in tasks]
+    num_desc = []
+    for i in range(len(tasks)):
+        temp = [','.join(item) for item in split_data][i].split(',')
+        num_desc.append([''.join([c for c in temp if c in '0123456789']), ''.join([c for c in temp if c not in '0123456789']).replace(')context work context', '')])
+    df3 = pd.DataFrame(num_desc, columns = ['Importance', 'Candidate Characteristic'])
+    df3 = df3[df3['Importance'] != '']
+
+    response = requests.get(knowledge_url, headers=headers)
+    soup = BeautifulSoup(response.text, 'html.parser')
+    tasks = str(soup.get_text('reportsubdesc')).replace("reportsubdesc", " ").replace("ImportanceCategoryTask ", "")
+    tasks = clean(tasks)
+    tasks = tasks.split('show all show top 10')[1]
+    tasks = tasks.split('back to top')[0]
+    tasks = remove_new_line(tasks).replace("related occupations", " ").replace(")importance knowledge", " ")
+    tasks = tasks.split(". ")
+    split_data = [item.split(" -- ")[0] for item in tasks]
+    num_desc = []
+    for i in range(len(tasks)):
+        temp = [','.join(item) for item in split_data][i].split(',')
+        num_desc.append([''.join([c for c in temp if c in '0123456789']), ''.join([c for c in temp if c not in '0123456789']).replace(')context work context', '')])
+    df4 = pd.DataFrame(num_desc, columns = ['Importance', 'Candidate Characteristic'])
+    df4 = df4[df4['Importance'] != '']
+    
+    response = requests.get(abilities_url, headers=headers)
+    soup = BeautifulSoup(response.text, 'html.parser')
+    tasks = str(soup.get_text('reportsubdesc')).replace("reportsubdesc", " ").replace("ImportanceCategoryTask ", "")
+    tasks = clean(tasks)
+    tasks = tasks.split('show all show top 10')[1]
+    tasks = tasks.split('back to top')[0]
+    tasks = remove_new_line(tasks).replace("related occupations", " ").replace(")importance ability", " ")
+    tasks = tasks.split(". ")
+    split_data = [item.split(" -- ")[0] for item in tasks]
+    num_desc = []
+    for i in range(len(tasks)):
+        temp = [','.join(item) for item in split_data][i].split(',')
+        num_desc.append([''.join([c for c in temp if c in '0123456789']), ''.join([c for c in temp if c not in '0123456789']).replace(')context work context', '')])
+    df5 = pd.DataFrame(num_desc, columns = ['Importance', 'Candidate Characteristic'])
+    df5 = df5[df5['Importance'] != '']
+    
+    response = requests.get(interests_url, headers=headers)
+    soup = BeautifulSoup(response.text, 'html.parser')
+    tasks = str(soup.get_text('reportsubdesc')).replace("reportsubdesc", " ").replace("ImportanceCategoryTask ", "")
+    tasks = clean(tasks)
+    tasks = tasks.split("occupational interest interest")[1]#.replace('bright outlook', '').replace('updated 2023', '')
+    tasks = tasks.split('back to top')[0]
+    tasks = remove_new_line(tasks).replace("related occupations", " ").replace(")importance interest", " ")
+    tasks = tasks.split(". ")
+    split_data = [item.split(" -- ")[0] for item in tasks]
+    num_desc = []
+    for i in range(len(tasks)):
+        temp = [','.join(item) for item in split_data][i].split(',')
+        num_desc.append([''.join([c for c in temp if c in '0123456789']), ''.join([c for c in temp if c not in '0123456789']).replace(')context work context', '')])
+    df6 = pd.DataFrame(num_desc, columns = ['Importance', 'Candidate Characteristic'])
+    df6 = df6[df6['Importance'] != '']
+
+    response = requests.get(values_url, headers=headers)
+    soup = BeautifulSoup(response.text, 'html.parser')
+    tasks = str(soup.get_text('reportsubdesc')).replace("reportsubdesc", " ").replace("ImportanceCategoryTask ", "")
+    tasks = clean(tasks)
+    tasks = tasks.split('extent work value')[1]
+    tasks = tasks.split('back to top')[0]
+    tasks = remove_new_line(tasks).replace("related occupations", " ").replace(")importance value", " ")
+    tasks = tasks.split(". ")
+    split_data = [item.split(" -- ")[0] for item in tasks]
+    num_desc = []
+    for i in range(len(tasks)):
+        temp = [','.join(item) for item in split_data][i].split(',')
+        num_desc.append([''.join([c for c in temp if c in '0123456789']), ''.join([c for c in temp if c not in '0123456789']).replace(')context work context', '')])
+    df7 = pd.DataFrame(num_desc, columns = ['Importance', 'Candidate Characteristic'])
+    df7 = df7[df7['Importance'] != '']
+
+    response = requests.get(style_url, headers=headers)
+    soup = BeautifulSoup(response.text, 'html.parser')
+    tasks = str(soup.get_text('reportsubdesc')).replace("reportsubdesc", " ").replace("ImportanceCategoryTask ", "")
+    tasks = clean(tasks)
+    tasks = tasks.split('show all show top 10')[1]
+    tasks = tasks.split('back to top')[0]
+    tasks = remove_new_line(tasks).replace("related occupations", " ").replace(")importance style", " ")
+    tasks = tasks.split(". ")
+    split_data = [item.split(" -- ")[0] for item in tasks]
+    num_desc = []
+    for i in range(len(tasks)):
+        temp = [','.join(item) for item in split_data][i].split(',')
+        num_desc.append([''.join([c for c in temp if c in '0123456789']), ''.join([c for c in temp if c not in '0123456789']).replace(')context work context', '')])
+    df8 = pd.DataFrame(num_desc, columns = ['Importance', 'Candidate Characteristic'])
+    df8 = df8[df8['Importance'] != '']
+
+    cand_df = pd.concat([df3, df4, df5, df6, df7, df8], axis = 0)
+
+    return [job_df, cand_df]
+
 def get_job_postings(onetCode, state):
     headers = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/14.1.2 Safari/605.1.15'}
     url = "https://www.onetonline.org/link/localjobs/" + onetCode + "?st=" + state

@@ -14,6 +14,7 @@ from fastapi.responses import HTMLResponse
 import pandas as pd
 import time
 from uuid import uuid1
+from mangum import Mangum
 from localStoragePy import localStoragePy
 localStorage = localStoragePy('pathfinder', 'text')
 
@@ -23,6 +24,7 @@ from user_utils import Hash
 
 # APP SETUP
 app = FastAPI()
+handler = Mangum(app)
 app.mount("/static", StaticFiles(directory='static'), name="static")
 templates = Jinja2Templates(directory="templates/")
 
