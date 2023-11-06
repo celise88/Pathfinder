@@ -18,7 +18,7 @@ from mangum import Mangum
 from localStoragePy import localStoragePy
 localStorage = localStoragePy('pathfinder', 'text')
 
-from scrape_onet import get_onet_code, get_onet_description, get_onet_tasks, get_job_postings
+from scrape_onet import get_onet_code, get_onet_description, get_onet_tasks, get_onet_activities, get_onet_context, get_onet_skills, get_onet_knowledge, get_onet_abilities, get_onet_interests, get_onet_styles, get_onet_values, get_job_postings
 from match_utils import neighborhoods, get_resume, skillNER, sim_result_loop, get_links, coSkillEmbed, sim_result_loop_jobFinder, sim_result_loop_candFinder
 from user_utils import Hash
 
@@ -122,13 +122,30 @@ def post_job(request: Request, bt: BackgroundTasks, jobtitle: str = Form(enum=[x
         onetCode = get_onet_code(jobtitle)
         jobdescription = get_onet_description(onetCode)
         tasks = get_onet_tasks(onetCode)
+        activities = get_onet_activities(onetCode)
+        context = get_onet_context(onetCode)
+        skills = get_onet_skills(onetCode)
+        knowledge = get_onet_knowledge(onetCode)
+        abilities = get_onet_abilities(onetCode)
+        interests = get_onet_interests(onetCode)
+        values = get_onet_values(onetCode)
+        styles = get_onet_styles(onetCode)
+
         bt.add_task(neighborhoods, jobtitle)
         return templates.TemplateResponse('job_list.html', context={
             'request': request, 
             'joblist': joblist, 
             'jobtitle': jobtitle, 
             'jobdescription': jobdescription, 
-            'tasks': tasks})
+            'tasks': tasks, 
+            'activities': activities, 
+            'context': context,
+            'knowledge': knowledge,
+            'abilities': abilities,
+            'skills': skills,
+            'interests': interests,
+            'values': values, 
+            'styles': styles})
 
 ### JOB NEIGHBORHOODS ###
 @app.get("/explore-job-neighborhoods/", response_class=HTMLResponse)
