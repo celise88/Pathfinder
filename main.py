@@ -123,13 +123,13 @@ def post_job(request: Request, bt: BackgroundTasks, jobtitle: str = Form(enum=[x
         jobdescription = get_onet_description(onetCode)
         tasks = get_onet_tasks(onetCode)
         activities = get_onet_activities(onetCode)
-        context = get_onet_context(onetCode)
+        conditions = get_onet_context(onetCode)
         skills = get_onet_skills(onetCode)
         knowledge = get_onet_knowledge(onetCode)
         abilities = get_onet_abilities(onetCode)
         interests = get_onet_interests(onetCode)
-        values = get_onet_values(onetCode)
-        styles = get_onet_styles(onetCode)
+        #values = get_onet_values(onetCode)
+        #styles = get_onet_styles(onetCode)
 
         bt.add_task(neighborhoods, jobtitle)
         return templates.TemplateResponse('job_list.html', context={
@@ -139,13 +139,14 @@ def post_job(request: Request, bt: BackgroundTasks, jobtitle: str = Form(enum=[x
             'jobdescription': jobdescription, 
             'tasks': tasks, 
             'activities': activities, 
-            'context': context,
+            'conditions': conditions,
             'knowledge': knowledge,
             'abilities': abilities,
             'skills': skills,
-            'interests': interests,
-            'values': values, 
-            'styles': styles})
+            'interests': interests #,
+            #'values': values, 
+            #'styles': styles
+            })
 
 ### JOB NEIGHBORHOODS ###
 @app.get("/explore-job-neighborhoods/", response_class=HTMLResponse)

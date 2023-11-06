@@ -17,7 +17,7 @@ def get_onet_code(jobtitle):
 
 def get_onet_description(onetCode):
     url = "https://www.onetonline.org/link/summary/" + onetCode
-    response = requests.get(url, headers=headers)
+    response = requests.get(url, headers=headers, verify=False)
     soup = BeautifulSoup(response.text, 'html.parser')
     jobdescription = soup.p.get_text()
     return jobdescription
@@ -25,7 +25,7 @@ def get_onet_description(onetCode):
 def get_onet_tasks(onetCode):
     headers = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/14.1.2 Safari/605.1.15'}
     url = "https://www.onetonline.org/link/result/" + onetCode + "?c=tk&n_tk=0&s_tk=IM&c_tk=0"
-    response = requests.get(url, headers=headers)
+    response = requests.get(url, headers=headers, verify=False)
     soup = BeautifulSoup(response.text, 'html.parser')
     tasks = str(soup.get_text('reportsubdesc')).replace("reportsubdesc", " ").replace("ImportanceCategoryTask ", "")
     tasks = clean(tasks)
@@ -41,7 +41,7 @@ def get_onet_activities(onetCode):
     
     activities_url = "https://www.onetonline.org/link/result/" + onetCode + "?c=wa&n_wa=0&s_wa=IM&c_wa=0"
 
-    response = requests.get(activities_url, headers=headers)
+    response = requests.get(activities_url, headers=headers, verify=False)
     soup = BeautifulSoup(response.text, 'html.parser')
     tasks = str(soup.get_text('reportsubdesc')).replace("reportsubdesc", " ").replace("ImportanceCategoryTask ", "")
     tasks = clean(tasks)
@@ -64,7 +64,7 @@ def get_onet_context(onetCode):
 
     context_url = "https://www.onetonline.org/link/result/" + onetCode + "?c=cx&n_cx=0&c_cx=0&s_cx=n"
 
-    response = requests.get(context_url, headers=headers)
+    response = requests.get(context_url, headers=headers, verify=False)
     soup = BeautifulSoup(response.text, 'html.parser')
     tasks = str(soup.get_text('reportsubdesc')).replace("reportsubdesc", " ").replace("ImportanceCategoryTask ", "")
     tasks = clean(tasks)
@@ -87,7 +87,7 @@ def get_onet_skills(onetCode):
 
     skills_url = "https://www.onetonline.org/link/result/" + onetCode + "?c=sk&n_sk=0&s_sk=IM&c_sk=0"
     
-    response = requests.get(skills_url, headers=headers)
+    response = requests.get(skills_url, headers=headers, verify=False)
     soup = BeautifulSoup(response.text, 'html.parser')
     tasks = str(soup.get_text('reportsubdesc')).replace("reportsubdesc", " ").replace("ImportanceCategoryTask ", "")
     tasks = clean(tasks)
@@ -110,7 +110,7 @@ def get_onet_knowledge(onetCode):
 
     knowledge_url = "https://www.onetonline.org/link/result/" + onetCode + "?c=kn&n_kn=0&s_kn=IM&c_kn=0"
 
-    response = requests.get(knowledge_url, headers=headers)
+    response = requests.get(knowledge_url, headers=headers, verify=False)
     soup = BeautifulSoup(response.text, 'html.parser')
     tasks = str(soup.get_text('reportsubdesc')).replace("reportsubdesc", " ").replace("ImportanceCategoryTask ", "")
     tasks = clean(tasks)
@@ -133,7 +133,7 @@ def get_onet_abilities(onetCode):
 
     abilities_url = "https://www.onetonline.org/link/result/" + onetCode + "?c=ab&n_ab=0&s_ab=IM&c_ab=0"
 
-    response = requests.get(abilities_url, headers=headers)
+    response = requests.get(abilities_url, headers=headers, verify=False)
     soup = BeautifulSoup(response.text, 'html.parser')
     tasks = str(soup.get_text('reportsubdesc')).replace("reportsubdesc", " ").replace("ImportanceCategoryTask ", "")
     tasks = clean(tasks)
@@ -156,7 +156,7 @@ def get_onet_interests(onetCode):
 
     interests_url = "https://www.onetonline.org/link/result/" + onetCode + "?c=in&c_in=0"
 
-    response = requests.get(interests_url, headers=headers)
+    response = requests.get(interests_url, headers=headers, verify=False)
     soup = BeautifulSoup(response.text, 'html.parser')
     tasks = str(soup.get_text('reportsubdesc')).replace("reportsubdesc", " ").replace("ImportanceCategoryTask ", "")
     tasks = clean(tasks)
@@ -179,7 +179,7 @@ def get_onet_values(onetCode):
 
     values_url = "https://www.onetonline.org/link/result/" + onetCode + "?c=wv&c_wv=0"
     
-    response = requests.get(values_url, headers=headers)
+    response = requests.get(values_url, headers=headers, verify=False)
     soup = BeautifulSoup(response.text, 'html.parser')
     tasks = str(soup.get_text('reportsubdesc')).replace("reportsubdesc", " ").replace("ImportanceCategoryTask ", "")
     tasks = clean(tasks)
@@ -202,7 +202,7 @@ def get_onet_styles(onetCode):
 
     style_url = "https://www.onetonline.org/link/result/" + onetCode + "?c=ws&n_ws=0&c_ws=0"
 
-    response = requests.get(style_url, headers=headers)
+    response = requests.get(style_url, headers=headers, verify=False)
     soup = BeautifulSoup(response.text, 'html.parser')
     tasks = str(soup.get_text('reportsubdesc')).replace("reportsubdesc", " ").replace("ImportanceCategoryTask ", "")
     tasks = clean(tasks)
@@ -223,7 +223,7 @@ def get_onet_styles(onetCode):
 def get_job_postings(onetCode, state):
     headers = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/14.1.2 Safari/605.1.15'}
     url = "https://www.onetonline.org/link/localjobs/" + onetCode + "?st=" + state
-    response = requests.get(url, headers=headers)
+    response = requests.get(url, headers=headers, verify=False)
     soup = BeautifulSoup(response.text, 'html.parser')
     jobs = str(soup.get_text("tbody")).split('PostedtbodyTitle and CompanytbodyLocation')[1].split('Sources:')[0].split("tbody")
     jobs = jobs[5:45]

@@ -54,13 +54,13 @@
             </ul>
         </section>
         {% endif %}
-        {% if activities %}
+        {% if jobtitle %}
         <section>
             <h1 class="sectiontitle">Other Work Activities:</h1>
             <p class="sectiontext">{{ activities }}</p>
         </section>
         {% endif %}
-        {% if conditions %}
+        {% if jobtitle %}
         <section>
             <h1 class="sectiontitle">Work Conditions:</h1>
             <p class="sectiontext">{{ conditions }}</p>
@@ -73,8 +73,7 @@
         </section>
         {% endif %}
         {% if jobtitle %}
-        <h1 class="pagesubtitle">About the Qualified Candidate</h1>
-        <h1 class="pagesubtitle">We're sorry! This section is currently under construction. Please check back soon to see the characteristics necessary to be great {{ jobtitle }}.</h1>
+        <h1 class="pagesubtitle">About the Qualified Applicant</h1>
         {% endif %}
         {% if preparation %}
         <section>
@@ -82,25 +81,25 @@
             <p class="sectiontext">{{ preparation }}</p>
         </section>
         {% endif %}
-        {% if knowledge %}
+        {% if jobtitle %}
         <section>
             <h1 class="sectiontitle">Knows About:</h1>
             <p class="sectiontext">{{ knowledge }}</p>
         </section>
         {% endif %}
-        {% if skills %}
+        {% if jobtitle %}
         <section>
             <h1 class="sectiontitle">Is Skilled at:</h1>
             <p class="sectiontext">{{ skills }}</p>
         </section>
         {% endif %}
-        {% if abilities %}
+        {% if jobtitle %}
         <section>
             <h1 class="sectiontitle">Is Able to:</h1>
             <p class="sectiontext">{{ abilities }}</p>
         </section>
         {% endif %}
-        {% if interests %}
+        {% if jobtitle %}
         <section>
             <h1 class="sectiontitle">Is Interested in:</h1>
             <p class="sectiontext">{{ interests }}</p>
