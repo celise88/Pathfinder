@@ -128,8 +128,8 @@ def post_job(request: Request, bt: BackgroundTasks, jobtitle: str = Form(enum=[x
         knowledge = get_onet_knowledge(onetCode)
         abilities = get_onet_abilities(onetCode)
         interests = get_onet_interests(onetCode)
-        #values = get_onet_values(onetCode)
-        #styles = get_onet_styles(onetCode)
+        values = get_onet_values(onetCode)
+        styles = get_onet_styles(onetCode)
 
         bt.add_task(neighborhoods, jobtitle)
         return templates.TemplateResponse('job_list.html', context={
@@ -143,9 +143,9 @@ def post_job(request: Request, bt: BackgroundTasks, jobtitle: str = Form(enum=[x
             'knowledge': knowledge,
             'abilities': abilities,
             'skills': skills,
-            'interests': interests #,
-            #'values': values, 
-            #'styles': styles
+            'interests': interests,
+            'values': values, 
+            'styles': styles
             })
 
 ### JOB NEIGHBORHOODS ###

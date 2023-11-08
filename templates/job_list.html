@@ -38,15 +38,12 @@
             </form>
         </section>
         <section>
-            <h1 class="sectiontitle">{{ jobtitle }}</h1>
+            <h1 class="pagesubtitle">{{ jobtitle }}</h1>
             <p class="sectiontext">{{ jobdescription }}</p>
         </section>
-        {% if jobtitle %}
-        <h1 class="pagesubtitle">About the Job</h1>
-        {% endif %}
         {% if tasks %}
         <section>
-            <h1 class="sectiontitle">Work Tasks:</h1>
+            <h1 class="sectiontitle">What {{jobtitle}} do:</h1>
             <ul class="sectionlist">
                 {% for task in tasks %}
                 <li class="sectionlist__item">{{ task }}</li>
@@ -55,15 +52,58 @@
         </section>
         {% endif %}
         {% if jobtitle %}
+        <h1 class="pagesubtitle">About the Job</h1>
+        {% endif %}
+        {% if jobtitle %}
         <section>
-            <h1 class="sectiontitle">Other Work Activities:</h1>
-            <p class="sectiontext">{{ activities }}</p>
+            <h1 class="sectiontitle">Work Activities:</h1>
+            <br>
+            <table>
+                <thead class="output__list">
+                    <tr>
+                        <th class="output__list-coloreditem">Activity</th>
+                        <th class="output__list-coloreditem" scope="col">Importance</th>
+                    </tr>
+                </thead>
+                <tbody class="output__list" style="text-align: left">
+                    {% for n in activities.index %}
+                        <tr>
+                            <th class="output__list-item" scope="row">
+                                {{ activities.loc[n, 'Activity'] }}
+                            </th>
+                            <td class="output__list-item" style="text-align: center">
+                                {{ activities.loc[n, 'Importance'] }}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
         </section>
         {% endif %}
         {% if jobtitle %}
         <section>
             <h1 class="sectiontitle">Work Conditions:</h1>
-            <p class="sectiontext">{{ conditions }}</p>
+            <br>
+            <table>
+                <thead class="output__list">
+                    <tr>
+                        <th class="output__list-coloreditem">Condition</th>
+                        <th class="output__list-coloreditem" scope="col">Importance</th>
+                    </tr>
+                </thead>
+                <tbody class="output__list" style="text-align: left">
+                    {% for n in conditions.index %}
+                        <tr>
+                            <th class="output__list-item" scope="row">
+                                {{ conditions.loc[n, 'Condition'] }}
+                            </th>
+                            <td class="output__list-item" style="text-align: center">
+                                {{ conditions.loc[n, 'Importance'] }}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
         </section>
         {% endif %}
         {% if compensation %}
@@ -83,28 +123,163 @@
         {% endif %}
         {% if jobtitle %}
         <section>
-            <h1 class="sectiontitle">Knows About:</h1>
-            <p class="sectiontext">{{ knowledge }}</p>
+            <h1 class="sectiontitle">Knowledge:</h1>
+            <br>
+            <table>
+                <thead class="output__list">
+                    <tr>
+                        <th class="output__list-coloreditem">Knowledge</th>
+                        <th class="output__list-coloreditem" scope="col">Importance</th>
+                    </tr>
+                </thead>
+                <tbody class="output__list" style="text-align: left">
+                    {% for n in knowledge.index %}
+                        <tr>
+                            <th class="output__list-item" scope="row">
+                                {{ knowledge.loc[n, 'Knowledge'] }}
+                            </th>
+                            <td class="output__list-item" style="text-align: center">
+                                {{ knowledge.loc[n, 'Importance'] }}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
         </section>
         {% endif %}
         {% if jobtitle %}
         <section>
-            <h1 class="sectiontitle">Is Skilled at:</h1>
-            <p class="sectiontext">{{ skills }}</p>
+            <h1 class="sectiontitle">Skills:</h1>
+            <br>
+            <table>
+                <thead class="output__list">
+                    <tr>
+                        <th class="output__list-coloreditem">Skill</th>
+                        <th class="output__list-coloreditem" scope="col">Importance</th>
+                    </tr>
+                </thead>
+                <tbody class="output__list" style="text-align: left">
+                    {% for n in skills.index %}
+                        <tr>
+                            <th class="output__list-item" scope="row">
+                                {{ skills.loc[n, 'Skill'] }}
+                            </th>
+                            <td class="output__list-item" style="text-align: center">
+                                {{ skills.loc[n, 'Importance'] }}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
         </section>
         {% endif %}
         {% if jobtitle %}
         <section>
-            <h1 class="sectiontitle">Is Able to:</h1>
-            <p class="sectiontext">{{ abilities }}</p>
+            <h1 class="sectiontitle">Abilities:</h1>
+            <br>
+            <table>
+                <thead class="output__list">
+                    <tr>
+                        <th class="output__list-coloreditem">Ability</th>
+                        <th class="output__list-coloreditem" scope="col">Importance</th>
+                    </tr>
+                </thead>
+                <tbody class="output__list" style="text-align: left">
+                    {% for n in abilities.index %}
+                        <tr>
+                            <th class="output__list-item" scope="row">
+                                {{ abilities.loc[n, 'Ability'] }}
+                            </th>
+                            <td class="output__list-item" style="text-align: center">
+                                {{ abilities.loc[n, 'Importance'] }}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
         </section>
         {% endif %}
         {% if jobtitle %}
         <section>
-            <h1 class="sectiontitle">Is Interested in:</h1>
-            <p class="sectiontext">{{ interests }}</p>
+            <h1 class="sectiontitle">Interests:</h1>
+            <br>
+            <table>
+                <thead class="output__list">
+                    <tr>
+                        <th class="output__list-coloreditem">Interest</th>
+                        <th class="output__list-coloreditem" scope="col">Importance</th>
+                    </tr>
+                </thead>
+                <tbody class="output__list" style="text-align: left">
+                    {% for n in interests.index %}
+                        <tr>
+                            <th class="output__list-item" scope="row">
+                                {{ interests.loc[n, 'Interest'] }}
+                            </th>
+                            <td class="output__list-item" style="text-align: center">
+                                {{ interests.loc[n, 'Importance'] }}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
         </section>
         {% endif %}
+        {% if jobtitle %}
+        <section>
+            <h1 class="sectiontitle">Values:</h1>
+            <br>
+            <table>
+                <thead class="output__list">
+                    <tr>
+                        <th class="output__list-coloreditem">Value</th>
+                        <th class="output__list-coloreditem" scope="col">Importance</th>
+                    </tr>
+                </thead>
+                <tbody class="output__list" style="text-align: left">
+                    {% for n in values.index %}
+                        <tr>
+                            <th class="output__list-item" scope="row">
+                                {{ values.loc[n, 'Value'] }}
+                            </th>
+                            <td class="output__list-item" style="text-align: center">
+                                {{ values.loc[n, 'Importance'] }}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </section>
+        {% endif %}
+        {% if jobtitle %}
+        <section>
+            <h1 class="sectiontitle">Styles:</h1>
+            <br>
+            <table>
+                <thead class="output__list">
+                    <tr>
+                        <th class="output__list-coloreditem">Style</th>
+                        <th class="output__list-coloreditem" scope="col">Importance</th>
+                    </tr>
+                </thead>
+                <tbody class="output__list" style="text-align: left">
+                    {% for n in styles.index %}
+                        <tr>
+                            <th class="output__list-item" scope="row">
+                                {{ styles.loc[n, 'Style'] }}
+                            </th>
+                            <td class="output__list-item" style="text-align: center">
+                                {{ styles.loc[n, 'Importance'] }}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </section>
+        {% endif %}
+        <br>
+        <br>
+        <br>
     </main>
     <footer class="footer">
         <ul class="footer__text">
