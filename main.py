@@ -170,24 +170,24 @@ async def post_matches(request: Request, bt: BackgroundTasks, resume: UploadFile
 
     username = localStorage.getItem('username')
 
-    def add_data_to_db(resume):
+    def add_data_to_db(skills):
         db = pd.read_csv('static/res_embeddings.csv')
-        embeds = format(skillEmbed(resume)).replace('[[','').replace(']]','').replace('[','').replace(']','').split(',')
+        embeds = format(skillEmbed(skills)).replace('[[','').replace(']]','').replace('[','').replace(']','').split(',')
         db.iloc[db['username']== username,5:] = embeds
         db.to_csv('static/res_embeddings.csv', index=False)
 
-    def get_jobs_from_db(resume):
-        job_matches = sim_result_loop_jobFinder(resume)
+    def get_jobs_from_db(skills):
+        job_matches = sim_result_loop_jobFinder(skills)
         print(job_matches)
 
     resume = get_resume(resume)
     skills = skill_extractor(resume)
-    simResults = await sim_result_loop(resume)
+    simResults = await sim_result_loop(skills)
     links = get_links(simResults[0])
 
     if username is not None:
-        bt.add_task(add_data_to_db, resume)
-        bt.add_task(get_jobs_from_db, resume)
+        bt.add_task(add_data_to_db, skills)
+        bt.add_task(get_jobs_from_db, skills)
 
     return templates.TemplateResponse('find_my_match.html', context={'request': request, 'resume': resume, 'skills': skills, 'simResults': simResults[0], 'links': links, 'statelist': statelist})
 
@@ -211,24 +211,24 @@ async def post_matches(request: Request, bt: BackgroundTasks, jobdesc: UploadFil
 
     username = localStorage.getItem('username')
 
-    def add_data_to_db(jobdesc):
+    def add_data_to_db(skills):
         db = pd.read_csv('static/jd_embeddings.csv')
-        embeds = format(skillEmbed(jobdesc)).replace('[[','').replace(']]','').split(',')
+        embeds = format(skillEmbed(skills)).replace('[[','').replace(']]','').split(',')
         db.iloc[db['username']== username,5:] = embeds
         db.to_csv('static/jd_embeddings.csv', index=False)
     
-    def get_cand_from_db(jobdesc):
-        cand_matches = sim_result_loop_candFinder(jobdesc)
+    def get_cand_from_db(skills):
+        cand_matches = sim_result_loop_candFinder(skills)
         print(cand_matches)
 
     jobdesc = get_resume(jobdesc)
     skills = skill_extractor(jobdesc)
-    simResults = await sim_result_loop(jobdesc)
+    simResults = await sim_result_loop(skills)
     links = get_links(simResults[0])
 
     if username is not None:
-        bt.add_task(add_data_to_db, jobdesc)
-        bt.add_task(get_cand_from_db, jobdesc)
+        bt.add_task(add_data_to_db, skills)
+        bt.add_task(get_cand_from_db, skills)
 
     return templates.TemplateResponse('candidate_matcher.html', context={'request': request, 'jobdesc': jobdesc, 'skills': skills, 'simResults': simResults[0], 'links': links})
 

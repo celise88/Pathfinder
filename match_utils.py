@@ -19,8 +19,8 @@ except AttributeError:
 else:
     ssl._create_default_https_context = _create_unverified_https_context
 
-# LOAD COHERE EMBEDDINGS:
-simdat = pd.read_csv('static/embeddings/cohere_embeddings.csv')
+# LOAD EMBEDDINGS:
+simdat = pd.read_csv('static/embeddings/onet_embeddings.csv')
 coheredat = pd.read_csv('static/cohere_tSNE_dat.csv')
 
 # LOAD LLM MODELS:
