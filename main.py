@@ -12,7 +12,6 @@ from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import HTMLResponse
 import pandas as pd
-import time
 from uuid import uuid1
 from mangum import Mangum
 from localStoragePy import localStoragePy
@@ -171,24 +170,24 @@ async def post_matches(request: Request, bt: BackgroundTasks, resume: UploadFile
 
     username = localStorage.getItem('username')
 
-    def add_data_to_db(skills):
+    def add_data_to_db(resume):
         db = pd.read_csv('static/res_embeddings.csv')
-        embeds = format(skillEmbed(skills)).replace('[[','').replace(']]','').replace('[','').replace(']','').split(',')
+        embeds = format(skillEmbed(resume)).replace('[[','').replace(']]','').replace('[','').replace(']','').split(',')
         db.iloc[db['username']== username,5:] = embeds
         db.to_csv('static/res_embeddings.csv', index=False)
 
-    def get_jobs_from_db(skills):
-        job_matches = sim_result_loop_jobFinder(skills)
+    def get_jobs_from_db(resume):
+        job_matches = sim_result_loop_jobFinder(resume)
         print(job_matches)
 
     resume = get_resume(resume)
     skills = skill_extractor(resume)
-    simResults = await sim_result_loop(skills)
+    simResults = await sim_result_loop(resume)
     links = get_links(simResults[0])
 
     if username is not None:
-        bt.add_task(add_data_to_db, skills)
-        bt.add_task(get_jobs_from_db, skills)
+        bt.add_task(add_data_to_db, resume)
+        bt.add_task(get_jobs_from_db, resume)
 
     return templates.TemplateResponse('find_my_match.html', context={'request': request, 'resume': resume, 'skills': skills, 'simResults': simResults[0], 'links': links, 'statelist': statelist})
 
@@ -212,24 +211,24 @@ async def post_matches(request: Request, bt: BackgroundTasks, jobdesc: UploadFil
 
     username = localStorage.getItem('username')
 
-    def add_data_to_db(skills):
+    def add_data_to_db(jobdesc):
         db = pd.read_csv('static/jd_embeddings.csv')
-        embeds = format(skillEmbed(skills)).replace('[[','').replace(']]','').split(',')
+        embeds = format(skillEmbed(jobdesc)).replace('[[','').replace(']]','').split(',')
         db.iloc[db['username']== username,5:] = embeds
         db.to_csv('static/jd_embeddings.csv', index=False)
     
-    def get_cand_from_db(skills):
-        cand_matches = sim_result_loop_candFinder(skills)
+    def get_cand_from_db(jobdesc):
+        cand_matches = sim_result_loop_candFinder(jobdesc)
         print(cand_matches)
 
     jobdesc = get_resume(jobdesc)
     skills = skill_extractor(jobdesc)
-    simResults = await sim_result_loop(skills)
+    simResults = await sim_result_loop(jobdesc)
     links = get_links(simResults[0])
 
     if username is not None:
-        bt.add_task(add_data_to_db, skills)
-        bt.add_task(get_cand_from_db, skills)
+        bt.add_task(add_data_to_db, jobdesc)
+        bt.add_task(get_cand_from_db, jobdesc)
 
     return templates.TemplateResponse('candidate_matcher.html', context={'request': request, 'jobdesc': jobdesc, 'skills': skills, 'simResults': simResults[0], 'links': links})
 

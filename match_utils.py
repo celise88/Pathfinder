@@ -24,8 +24,8 @@ simdat = pd.read_csv('static/embeddings/cohere_embeddings.csv')
 coheredat = pd.read_csv('static/cohere_tSNE_dat.csv')
 
 # LOAD LLM MODELS:
-model = Ollama(model="mistral")
-embedding_model = OllamaEmbeddings(model="mistral")
+model = Ollama(model="mistral", temperature=0)
+embedding_model = OllamaEmbeddings(model="mistral", temperature=0)
 parser = CommaSeparatedListOutputParser()
 
 # UTILITY FUNCTIONS
@@ -81,20 +81,13 @@ def skill_extractor(resume):
      return parser.parse(result)
 
 
-def skillEmbed(skills):
-    embeddings = embedding_model.embed_query(skills)
+def skillEmbed(resume):
+    embeddings = embedding_model.embed_query(resume)
     return embeddings
 
 
-async def sim_result_loop(skilltext):
-    if type(skilltext) == str:
-        skills = skilltext
-    if type(skilltext) == dict:
-        skills = [key for key, value in skilltext.items() if value == "Skill"]
-        skills = str(skills).replace("'", "").replace(",", "")
-    if type(skilltext) == list: 
-        skills = ', '.join(skilltext)
-    embeds = skillEmbed(skills)
+async def sim_result_loop(resume):
+    embeds = skillEmbed(resume)
     def cosine(A, B):
         return np.dot(A,B)/(norm(A)*norm(B))
     def format_sim(sim):
@@ -125,8 +118,8 @@ def get_links(simResults):
     return links
 
 
-def sim_result_loop_jobFinder(skills):
-    embeds = skillEmbed(skills)
+def sim_result_loop_jobFinder(jobdesc):
+    embeds = skillEmbed(jobdesc)
     def cosine(A, B):
         return np.dot(A,B)/(norm(A)*norm(B))
     def format_sim(sim):
@@ -147,8 +140,8 @@ def sim_result_loop_jobFinder(skills):
     return simResults
 
 
-def sim_result_loop_candFinder(skills):
-    embeds = skillEmbed(skills)
+def sim_result_loop_candFinder(resume):
+    embeds = skillEmbed(resume)
     def cosine(A, B):
         return np.dot(A,B)/(norm(A)*norm(B))
     def format_sim(sim):
