@@ -29,6 +29,7 @@ templates = Jinja2Templates(directory="templates/")
 
 # LOAD DATA
 onet = pd.read_csv('static/ONET_JobTitles.csv')
+coheredat = pd.read_csv('static/neural_chat_tSNE_dat.csv')
 
 @app.get("/register/", response_class=HTMLResponse)
 def get_register(request: Request):
@@ -130,7 +131,8 @@ def post_job(request: Request, bt: BackgroundTasks, jobtitle: str = Form(enum=[x
         values = get_onet_values(onetCode)
         styles = get_onet_styles(onetCode)
 
-        bt.add_task(neighborhoods, jobtitle)
+        bt.add_task(neighborhoods, coheredat)
+        
         return templates.TemplateResponse('job_list.html', context={
             'request': request, 
             'joblist': joblist, 

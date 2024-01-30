@@ -20,12 +20,12 @@ else:
     ssl._create_default_https_context = _create_unverified_https_context
 
 # LOAD EMBEDDINGS:
-simdat = pd.read_csv('static/embeddings/onet_embeddings.csv')
-coheredat = pd.read_csv('static/cohere_tSNE_dat.csv')
+simdat = pd.read_csv('static/embeddings/onet_embeddings_neural_chat.csv')
+coheredat = pd.read_csv('static/neural_chat_tSNE_dat.csv')
 
 # LOAD LLM MODELS:
 model = Ollama(model="mistral", temperature=0)
-embedding_model = OllamaEmbeddings(model="mistral", temperature=0)
+embedding_model = OllamaEmbeddings(model="neural-chat", temperature=0)
 parser = CommaSeparatedListOutputParser()
 
 # UTILITY FUNCTIONS
@@ -33,14 +33,14 @@ def remove_new_line(value):
         return ''.join(value.splitlines())
 
 
-async def neighborhoods(jobtitle=None):
+async def neighborhoods(coheredat = coheredat):
     def format_title(logo, title, subtitle, title_font_size = 28, subtitle_font_size=14):
         logo = f'<a href="/" target="_self">{logo}</a>'
         subtitle = f'<span style="font-size: {subtitle_font_size}px;">{subtitle}</span>'
         title = f'<span style="font-size: {title_font_size}px;">{title}</span>'
         return f'{logo}{title}<br>{subtitle}'
     fig = px.scatter(coheredat, x = 'longitude', y = 'latitude', color = 'Category', hover_data = ['Category', 'Title'], 
-        title=format_title("Pathfinder", "     Job Neighborhoods: Explore the Map!", "(Generated using Co-here AI's LLM & ONET's Task Statements)"))
+        title=format_title(logo="Pathfinder", title="     Job Neighborhoods: Explore the Map!", subtitle=""))
     fig['layout'].update(height=1000, width=1500, font=dict(family='Courier New, monospace', color='black'))
     fig.write_html('templates/job_neighborhoods.html')
 
@@ -81,13 +81,13 @@ def skill_extractor(resume):
      return parser.parse(result)
 
 
-def skillEmbed(resume):
-    embeddings = embedding_model.embed_query(resume)
+def skillEmbed(skills):
+    embeddings = embedding_model.embed_query(skills)
     return embeddings
 
 
-async def sim_result_loop(resume):
-    embeds = skillEmbed(resume)
+async def sim_result_loop(skills):
+    embeds = skillEmbed(skills)
     def cosine(A, B):
         return np.dot(A,B)/(norm(A)*norm(B))
     def format_sim(sim):
@@ -118,8 +118,8 @@ def get_links(simResults):
     return links
 
 
-def sim_result_loop_jobFinder(jobdesc):
-    embeds = skillEmbed(jobdesc)
+def sim_result_loop_jobFinder(skills):
+    embeds = skillEmbed(skills)
     def cosine(A, B):
         return np.dot(A,B)/(norm(A)*norm(B))
     def format_sim(sim):
@@ -140,8 +140,8 @@ def sim_result_loop_jobFinder(jobdesc):
     return simResults
 
 
-def sim_result_loop_candFinder(resume):
-    embeds = skillEmbed(resume)
+def sim_result_loop_candFinder(skills):
+    embeds = skillEmbed(skills)
     def cosine(A, B):
         return np.dot(A,B)/(norm(A)*norm(B))
     def format_sim(sim):
