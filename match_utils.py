@@ -10,6 +10,7 @@ from langchain_community.llms.ollama import Ollama
 from langchain_community.embeddings import OllamaEmbeddings
 from langchain.chains import LLMChain
 from langchain.output_parsers import CommaSeparatedListOutputParser
+from sentence_transformers import SentenceTransformer
 
 # SSL CERTIFICATE FIX
 try:
@@ -19,31 +20,29 @@ except AttributeError:
 else:
     ssl._create_default_https_context = _create_unverified_https_context
 
-# LOAD EMBEDDINGS:
-simdat = pd.read_csv('static/embeddings/onet_embeddings_neural_chat.csv')
-coheredat = pd.read_csv('static/neural_chat_tSNE_dat.csv')
-
-# LOAD LLM MODELS:
-model = Ollama(model="mistral", temperature=0)
-embedding_model = OllamaEmbeddings(model="neural-chat", temperature=0)
+# LOAD DATA AND EMBEDDINGS:
+simdat = pd.read_csv('static/embeddings/onet_embeddings_st5.csv')
+tsne_dat = pd.read_csv('static/st5_tSNE_dat.csv')
 parser = CommaSeparatedListOutputParser()
 
-# UTILITY FUNCTIONS
+# LOAD MODELS:
+model = Ollama(model="mistral")
+embedding_model = SentenceTransformer('sentence-transformers/sentence-t5-base', device='cpu')
+
+# UTILITY FUNCTIONS:
 def remove_new_line(value):
         return ''.join(value.splitlines())
 
-
-async def neighborhoods(coheredat = coheredat):
+async def neighborhoods(jobtitle=None):
     def format_title(logo, title, subtitle, title_font_size = 28, subtitle_font_size=14):
         logo = f'<a href="/" target="_self">{logo}</a>'
         subtitle = f'<span style="font-size: {subtitle_font_size}px;">{subtitle}</span>'
         title = f'<span style="font-size: {title_font_size}px;">{title}</span>'
         return f'{logo}{title}<br>{subtitle}'
-    fig = px.scatter(coheredat, x = 'longitude', y = 'latitude', color = 'Category', hover_data = ['Category', 'Title'], 
-        title=format_title(logo="Pathfinder", title="     Job Neighborhoods: Explore the Map!", subtitle=""))
+    fig = px.scatter(tsne_dat, x = 'longitude', y = 'latitude', color = 'Category', hover_data = ['Category', 'Title'], 
+        title=format_title("Pathfinder", "     Job Neighborhoods: Explore the Map!", ""))
     fig['layout'].update(height=1000, width=1500, font=dict(family='Courier New, monospace', color='black'))
     fig.write_html('templates/job_neighborhoods.html')
-
 
 def get_resume(resume):
     path = f"static/{resume.filename}"
@@ -55,7 +54,6 @@ def get_resume(resume):
         text.append(para.text)
     resume = "\n".join(text)
     return resume
-
 
 def skill_extractor(resume):
      system_prompt_template = SystemMessagePromptTemplate.from_template("""
@@ -80,18 +78,26 @@ def skill_extractor(resume):
      result = remove_new_line(result['text'])
      return parser.parse(result)
 
-
 def skillEmbed(skills):
-    embeddings = embedding_model.embed_query(skills)
+    embeddings = embedding_model.encode(skills)
     return embeddings
 
-
-async def sim_result_loop(skills):
+async def sim_result_loop(skilltext):
+    if type(skilltext) == str:
+        skills = skilltext
+    if type(skilltext) == dict:
+        skills = [key for key, value in skilltext.items() if value == "Skill"]
+        skills = str(skills).replace("'", "").replace(",", "")
+    if type(skilltext) == list: 
+        skills = ', '.join(skilltext)
     embeds = skillEmbed(skills)
+    
     def cosine(A, B):
         return np.dot(A,B)/(norm(A)*norm(B))
+    
     def format_sim(sim):
         return "{:0.2f}".format(sim)
+    
     simResults = []
     [simResults.append(cosine(np.array(embeds), np.array(simdat.iloc[i,1:]))) for i in range(len(simdat))]
     simResults = pd.DataFrame(simResults)
@@ -110,13 +116,11 @@ async def sim_result_loop(skills):
         simResults.iloc[x,1] = format_sim(simResults.iloc[x,1])
     return simResults, embeds
 
-
 def get_links(simResults):
     links = []
     titles = simResults["JobTitle"]
     [links.append("https://www.onetonline.org/link/summary/" + get_onet_code(title)) for title in titles]
     return links
-
 
 def sim_result_loop_jobFinder(skills):
     embeds = skillEmbed(skills)
@@ -138,7 +142,6 @@ def sim_result_loop_jobFinder(skills):
     for x in range(len(simResults)):
         simResults.iloc[x,2] = format_sim(simResults.iloc[x,2])
     return simResults
-
 
 def sim_result_loop_candFinder(skills):
     embeds = skillEmbed(skills)

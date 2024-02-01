@@ -17,7 +17,7 @@ from mangum import Mangum
 from localStoragePy import localStoragePy
 localStorage = localStoragePy('pathfinder', 'text')
 
-from scrape_onet import get_onet_code, get_onet_description, get_onet_tasks, get_onet_activities, get_onet_context, get_onet_skills, get_onet_knowledge, get_onet_abilities, get_onet_interests, get_onet_styles, get_onet_values, get_job_postings
+from scrape_onet import get_onet_code, get_onet_description, get_onet_tasks, get_onet_activities, get_onet_abilities, get_onet_interests, get_onet_knowledge, get_onet_context, get_onet_skills, get_onet_styles, get_onet_values, get_job_postings
 from match_utils import neighborhoods, get_resume, skill_extractor, sim_result_loop, get_links, skillEmbed, sim_result_loop_jobFinder, sim_result_loop_candFinder
 from user_utils import Hash
 
@@ -29,8 +29,8 @@ templates = Jinja2Templates(directory="templates/")
 
 # LOAD DATA
 onet = pd.read_csv('static/ONET_JobTitles.csv')
-coheredat = pd.read_csv('static/neural_chat_tSNE_dat.csv')
 
+# REGISTER, LOGIN, LOGOUT
 @app.get("/register/", response_class=HTMLResponse)
 def get_register(request: Request):
     return templates.TemplateResponse('register.html', context={'request': request})
@@ -107,11 +107,13 @@ def post_logout(request: Request):
     message = "You have been successfully logged out."
     return templates.TemplateResponse('logout.html', context={'request': request, 'message': message})
 
+
 ### JOB INFORMATION CENTER ###
 # GET
 @app.get("/")
-def get_job(request: Request):
+def get_job(request: Request, bt: BackgroundTasks):
     joblist = onet['JobTitle']
+    bt.add_task(neighborhoods)
     return templates.TemplateResponse('job_list.html', context={'request': request, 'joblist': joblist})
 
 # POST
@@ -130,8 +132,6 @@ def post_job(request: Request, bt: BackgroundTasks, jobtitle: str = Form(enum=[x
         interests = get_onet_interests(onetCode)
         values = get_onet_values(onetCode)
         styles = get_onet_styles(onetCode)
-
-        bt.add_task(neighborhoods, coheredat)
         
         return templates.TemplateResponse('job_list.html', context={
             'request': request, 
@@ -153,6 +153,7 @@ def post_job(request: Request, bt: BackgroundTasks, jobtitle: str = Form(enum=[x
 @app.get("/explore-job-neighborhoods/", response_class=HTMLResponse)
 async def get_job_neighborhoods(request: Request):
     return templates.TemplateResponse('job_neighborhoods.html', context={'request': request})
+
 
 ### FIND-MY-MATCH ###
 # GET

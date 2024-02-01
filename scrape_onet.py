@@ -88,6 +88,25 @@ def get_onet_context(onetCode):
         df2 = pd.DataFrame(num_desc, columns = ['Importance', 'Condition'])
         df2 = df2[df2['Importance'] != '']
         context = df2
+        if len(context.index) < 5:
+            context_url = "https://www.onetonline.org/link/result/" + onetCode + "?c=wc&n_wc=0&c_wc=0"
+            response = requests.get(context_url, headers=headers, verify=False)
+            soup = BeautifulSoup(response.text, 'html.parser')
+            tasks = str(soup.get_text('reportsubdesc')).replace("reportsubdesc", " ").replace("ImportanceCategoryTask ", "")
+            tasks = clean(tasks)
+            if len(tasks.split('show all show top 10')) > 1:
+                tasks = tasks.split('show all show top 10')[1]
+                tasks = tasks.split('back to top')[0]
+                tasks = remove_new_line(tasks).replace("related occupations", " ").replace("importance work activity", " ")
+                tasks = tasks.split("? ")
+                split_data = [item.split(" -- ")[0] for item in tasks]
+                num_desc = []
+                for i in range(len(tasks)):
+                    temp = [','.join(item) for item in split_data][i].split(',')
+                    num_desc.append([''.join([c for c in temp if c in '0123456789']), ''.join([c for c in temp if c not in '0123456789']).replace(')context work context', '')])
+                df2 = pd.DataFrame(num_desc, columns = ['Importance', 'Condition'])
+                df2 = df2[df2['Importance'] != '']
+                context = df2
         return context
     else: 
         return pd.DataFrame([("We're sorry."), ("This occupation is currently undergoing updates."), ("Please try again later.")])
