@@ -13,7 +13,7 @@ pinned: true
 ![logo](./static/PF.png)   
 
 ## Purpose: 
-#### This is a FastAPI web application designed to allow job-seekers to learn more about various occupations and explore their future career path. See below for details and page descriptions. If you like the app, please star and/or fork and check back for future releases. Please note that this is a work in progress and may yield unexpected job match results - we are currently moving away from using Cohere.ai's embedding model and have not yet found a replacement that achieves acceptable performance. 
+#### This is a FastAPI web application designed to allow job-seekers to learn more about various occupations and explore their future career path. See below for details and page descriptions. If you like the app, please star and/or fork and check back for future releases. 
 
 ## To Access the App:
 https://huggingface.co/spaces/celise88/Pathfinder
