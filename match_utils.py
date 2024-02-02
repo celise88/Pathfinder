@@ -2,7 +2,6 @@ from docx import Document
 import pandas as pd
 import numpy as np
 from numpy.linalg import norm
-import ssl
 import plotly_express as px
 from scrape_onet import get_onet_code
 from langchain.prompts import ChatPromptTemplate, SystemMessagePromptTemplate, HumanMessagePromptTemplate
@@ -11,14 +10,6 @@ from langchain_community.embeddings import OllamaEmbeddings
 from langchain.chains import LLMChain
 from langchain.output_parsers import CommaSeparatedListOutputParser
 from sentence_transformers import SentenceTransformer
-
-# SSL CERTIFICATE FIX
-try:
-    _create_unverified_https_context = ssl._create_unverified_context
-except AttributeError:
-    pass
-else:
-    ssl._create_default_https_context = _create_unverified_https_context
 
 # LOAD DATA AND EMBEDDINGS:
 simdat = pd.read_csv('static/embeddings/onet_embeddings_st5.csv')
