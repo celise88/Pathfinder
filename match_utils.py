@@ -6,7 +6,6 @@ import plotly_express as px
 from scrape_onet import get_onet_code
 from langchain.prompts import ChatPromptTemplate, SystemMessagePromptTemplate, HumanMessagePromptTemplate
 from langchain_community.llms.ollama import Ollama
-from langchain_community.embeddings import OllamaEmbeddings
 from langchain.chains import LLMChain
 from langchain.output_parsers import CommaSeparatedListOutputParser
 from sentence_transformers import SentenceTransformer
