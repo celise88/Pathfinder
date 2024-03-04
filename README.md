@@ -28,6 +28,14 @@ cd Pathfinder
 python3 -m venv .venv
 source .venv/bin/activate
 pip3 install -r requirements.txt
+```
+#### Register for an account at https://groq.com and create an api key. 
+#### Create a .env file in the main repository with:
+
+GROQ_API_KEY=<"your_api_key">
+
+#### Then, in the terminal run:
+```
 uvicorn main:app
 ```
 
