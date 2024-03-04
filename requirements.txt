@@ -21,3 +21,5 @@ mangum==0.17.0
 certifi==2023.7.22
 langchain==0.1.4
 sentence-transformers==2.3.1
+langchain-groq==0.0.1
+python-dotenv==1.0.1

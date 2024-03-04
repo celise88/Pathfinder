@@ -5,10 +5,15 @@ from numpy.linalg import norm
 import plotly_express as px
 from scrape_onet import get_onet_code
 from langchain.prompts import ChatPromptTemplate, SystemMessagePromptTemplate, HumanMessagePromptTemplate
-from langchain_community.llms.ollama import Ollama
+from langchain_groq import ChatGroq
 from langchain.chains import LLMChain
 from langchain.output_parsers import CommaSeparatedListOutputParser
 from sentence_transformers import SentenceTransformer
+from dotenv import load_dotenv, find_dotenv
+import os
+
+load_dotenv(find_dotenv())
+GROQ_API_KEY = os.environ.get('GROQ_API_KEY')
 
 # LOAD DATA AND EMBEDDINGS:
 simdat = pd.read_csv('static/embeddings/onet_embeddings_st5.csv')
@@ -16,7 +21,7 @@ tsne_dat = pd.read_csv('static/st5_tSNE_dat.csv')
 parser = CommaSeparatedListOutputParser()
 
 # LOAD MODELS:
-model = Ollama(model="mistral")
+model = ChatGroq(groq_api_key=GROQ_API_KEY, model_name="mixtral-8x7b-32768", temperature=0.3, max_tokens=2048)
 embedding_model = SentenceTransformer('sentence-transformers/sentence-t5-base', device='cpu')
 
 # UTILITY FUNCTIONS:
